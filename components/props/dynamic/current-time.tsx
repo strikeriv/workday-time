@@ -1,16 +1,38 @@
 import { Info } from "lucide-react"
+import { useEffect, useState } from "react"
+
+import { calculateCurrentClockedInTime } from "~lib/data/time"
 
 import { CustomTooltip } from "../tooltip"
 
 interface CurrentTimeClockProps extends React.ComponentPropsWithoutRef<"div"> {
-  currentTime: string
+  tick: number
+  clockedInTime?: number
 }
 
 export function CurrentTimeClock({
   className,
-  currentTime,
+  tick,
+  clockedInTime,
   ...props
 }: Readonly<CurrentTimeClockProps>) {
+  const [currentTime, setCurrentTime] = useState<string>("loading...")
+
+  function updateClockedInTimer() {
+    const { clockedInHours, clockedInMinutes, clockedInSeconds } =
+      calculateCurrentClockedInTime(clockedInTime)
+
+    setCurrentTime(
+      `${clockedInHours} hours, ${clockedInMinutes} minutes, ~${clockedInSeconds} seconds`
+    )
+  }
+
+  useEffect(() => {
+    if (!clockedInTime) return
+
+    updateClockedInTimer()
+  }, [tick])
+
   return (
     <div className={className} {...props}>
       <h2 className="text-base font-bold">Current time worked</h2>

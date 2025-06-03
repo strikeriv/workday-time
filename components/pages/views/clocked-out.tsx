@@ -30,18 +30,18 @@ export function ClockedOutPage({
         <br />
       </p>
 
-      <ClockedStatus
+      {/* <ClockedStatus
         className="mt-6"
         isClockedIn={false}
         clockedTime={clockedTime}
-      />
-      <CurrentTimeClock className="mt-6" currentTime={currentTime} />
+      /> */}
+      {/* <CurrentTimeClock className="mt-6" currentTime={currentTime} />
       <TotalTimeClock className="mt-6" totalTime={totalTime} />
       <PayPage
         className="mt-6"
         estimatedPay={estimatedPay}
         estimatedPayWithDeductions={estimatedPayWithDeductions}
-      />
+      /> */}
     </div>
   )
 }

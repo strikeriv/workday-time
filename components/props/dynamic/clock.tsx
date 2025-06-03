@@ -1,14 +1,34 @@
+import { useEffect, useState } from "react"
+
 interface ClockedStatusProps extends React.ComponentPropsWithoutRef<"div"> {
+  tick: number
   isClockedIn: boolean
-  clockedTime: string
+  clockedInTime?: number
 }
 
 export function ClockedStatus({
   className,
+  tick,
   isClockedIn,
-  clockedTime,
+  clockedInTime,
   ...props
 }: Readonly<ClockedStatusProps>) {
+  const [clockedTime, setClockedTime] = useState<string>("loading...")
+
+  function updateClockedTime() {
+    const clockedInDate = new Date(clockedInTime)
+
+    setClockedTime(
+      `${clockedInDate.getHours()}:${clockedInDate.getMinutes()} ${clockedInDate.getHours() < 12 ? "AM" : "PM"}`
+    )
+  }
+
+  useEffect(() => {
+    if (!clockedInTime) return
+
+    updateClockedTime()
+  }, [tick])
+
   return (
     <div className={className} {...props}>
       <div>
