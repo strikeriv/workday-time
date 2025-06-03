@@ -8,16 +8,19 @@ import { PayPage } from "~components/props/dynamic/pay"
 import { TotalTimeClock } from "~components/props/dynamic/total-time"
 import { Button } from "~components/ui/button"
 import { Separator } from "~components/ui/separator"
-import type { Storage } from "~interfaces/interfaces"
+import { Status, type Storage } from "~interfaces/interfaces"
+import { StorageKeys } from "~lib/constants"
 
 interface ClockedInPageProps extends React.ComponentPropsWithoutRef<"div"> {
   tick: number
+  onClockOut: () => void
   storage: Storage
 }
 
 export function ClockedInPage({
   className,
   tick,
+  onClockOut,
   storage,
   ...props
 }: Readonly<ClockedInPageProps>) {
@@ -42,12 +45,15 @@ export function ClockedInPage({
       <TotalTimeClock
         className="mt-6"
         tick={tick}
+        isClockedIn={true}
         clockedInTime={storage?.clockedInTime}
         existingTime={storage?.timeWorked}
       />
       <PayPage
         className="mt-6"
         tick={tick}
+        isClockedIn={true}
+        k401DeductionPercentage={storage?.preferences?.k401Percentage}
         clockedInTime={storage?.clockedInTime}
         existingTime={storage?.timeWorked}
       />
@@ -55,7 +61,7 @@ export function ClockedInPage({
       <Separator className="my-6" />
 
       <div className="justifty-between">
-        <Button type="button" className="float-left" onClick={clockOut}>
+        <Button type="button" className="float-left" onClick={onClockOut}>
           <ExternalLink />
           Clock out
         </Button>

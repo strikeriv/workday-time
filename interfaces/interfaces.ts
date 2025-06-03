@@ -1,10 +1,11 @@
 export interface Storage {
-  preferences: Preferences
-  lastUpdated: number
-  clockedInTime: number
-  timeWorked: TimeWorked
-  status: Status
+  lastUpdated: number // used to determine if the data is stale
+  preferences: Preferences // setting preferences
+  clockedInTime: number // when the user clocked in, in milliseconds
+  timeWorked: TimeWorked // total time worked, in hours and minutes
+  status: Status // current status of the user, whether they are clocked in or out
 }
+
 export interface Preferences {
   hoursToWork: number
   autoModeEnabled: boolean

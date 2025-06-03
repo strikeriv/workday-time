@@ -18,7 +18,7 @@ import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
 import jbhunt from "data-base64:~assets/jbhunt.png"
 import { ArrowLeft, Loader2Icon } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { Link } from "react-router-dom"
 import { z } from "zod"
@@ -26,7 +26,9 @@ import { z } from "zod"
 import { wait } from "~background/util"
 import { Input } from "~components/ui/input"
 import { Switch } from "~components/ui/switch"
-import { StorageKeys } from "~constants"
+import { type Preferences, type Storage } from "~interfaces/interfaces"
+import { StorageKeys } from "~lib/constants"
+import { getStorage } from "~lib/data/storage"
 
 import { Status } from "../props/status"
 
@@ -55,11 +57,31 @@ export function SettingsPage({
   async function onSubmit(values: z.infer<typeof settingsSchema>) {
     setSaving(true)
 
+    // convert values to the correct types
+    values.hoursToWork = parseInt(values.hoursToWork.toString())
+    values.k401Percentage = parseFloat(values.k401Percentage.toString()) / 100
+
+    console.log("values", values)
     await chrome.storage.local.set({ [StorageKeys.Preferences]: values })
     await wait(500) // chrome storage is basically instant, so this is just to show the loading state
 
     setSaving(false)
   }
+
+  async function updateStorageValues(): Promise<void> {
+    const storage = await getStorage()
+    const values = storage.preferences
+
+    // convert values to the correct types
+    values.hoursToWork = parseInt(values.hoursToWork.toString())
+    values.k401Percentage = parseFloat(values.k401Percentage.toString()) * 100
+
+    form.reset(storage.preferences)
+  }
+
+  useEffect(() => {
+    updateStorageValues()
+  }, [])
 
   return (
     <div className={cn("flex h-full flex-col", className)} {...props}>
@@ -169,7 +191,7 @@ export function SettingsPage({
                   name="k401Percentage"
                   render={({ field }) => (
                     <FormItem className="flex w-full items-center">
-                      <FormControl>
+                      <div className="relative w-1/5">
                         <Input
                           type="number"
                           min={0}
@@ -189,9 +211,12 @@ export function SettingsPage({
                               e.preventDefault()
                             }
                           }}
-                          className="w-1/5"
+                          className="w-full pr-px"
                         />
-                      </FormControl>
+                        <span className="pointer-events-none absolute right-6 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                          %
+                        </span>
+                      </div>
                       <FormLabel className="!my-0 pl-2 text-muted-foreground">
                         401k percentage
                       </FormLabel>

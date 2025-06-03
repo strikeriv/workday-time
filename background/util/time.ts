@@ -1,7 +1,7 @@
 import { Page } from "puppeteer-core/lib/esm/puppeteer/puppeteer-core-browser.js"
 
-import { StorageKeys } from "~constants"
 import { Status } from "~interfaces/interfaces"
+import { StorageKeys } from "~lib/constants"
 
 import { getTitleOfPage } from "."
 

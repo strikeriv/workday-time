@@ -1,7 +1,7 @@
 import { Page } from "puppeteer-core/lib/esm/puppeteer/puppeteer-core-browser.js"
 
 import { getTitleOfPage, wait } from "~background/util"
-import { StorageKeys } from "~constants"
+import { StorageKeys } from "~lib/constants"
 
 import type { BrowserState } from "./interfaces/interfaces"
 import { registerWebRequestListener } from "./listener/web-request"
@@ -78,9 +78,9 @@ async function grabTimeFromWorkday(): Promise<void> {
       browserState.currentPage = newState.currentPage
     }
 
-    //await closeTab()
+    await closeTab()
 
-    console.log("Grabbed time data successfully. Closing tab...")
+    console.log("Grabbed time data successfully.")
   } catch (error) {
     console.error("Error while grabbing the time:", error)
   }
@@ -163,6 +163,7 @@ async function clockOut(): Promise<void> {
 }
 
 async function closeTab(): Promise<void> {
+  console.log("Closing tab...")
   const currentTab = browserState.currentTab
 
   await chrome.tabs.remove(currentTab.id)

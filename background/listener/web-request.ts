@@ -1,5 +1,5 @@
-import { StorageKeys } from "~constants"
 import { Status } from "~interfaces/interfaces"
+import { StorageKeys } from "~lib/constants"
 
 const enum EventIds {
   ClockOut = 979,

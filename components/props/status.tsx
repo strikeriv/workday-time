@@ -1,7 +1,7 @@
 import { Circle } from "lucide-react"
 import { forwardRef, useEffect, useImperativeHandle, useState } from "react"
 
-import { StorageKeys } from "~constants"
+import { StorageKeys } from "~lib/constants"
 import { cn } from "~lib/utils"
 
 export type StatusHandle = {

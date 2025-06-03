@@ -1,41 +1,77 @@
-import type { Storage } from "~interfaces/interfaces"
+import { ExternalLink, Settings } from "lucide-react"
+import { Link } from "react-router-dom"
 
-interface ClockedInPageProps extends React.ComponentPropsWithoutRef<"div"> {
+import { ClockedStatus } from "~components/props/dynamic/clock"
+import { CurrentTimeClock } from "~components/props/dynamic/current-time"
+import { PayPage } from "~components/props/dynamic/pay"
+import { TotalTimeClock } from "~components/props/dynamic/total-time"
+import { Button } from "~components/ui/button"
+import { Separator } from "~components/ui/separator"
+import { Status, type Storage } from "~interfaces/interfaces"
+import { StorageKeys } from "~lib/constants"
+
+interface ClockedOutPageProps extends React.ComponentPropsWithoutRef<"div"> {
   tick: number
+  onClockIn: () => void
   storage: Storage
 }
 
 export function ClockedOutPage({
   className,
   tick,
+  onClockIn,
   storage,
   ...props
-}: Readonly<ClockedInPageProps>) {
+}: Readonly<ClockedOutPageProps>) {
   return (
     <div className={className} {...props}>
       <p className="text-sm text-muted-foreground">
         You are currently clocked out
         <br />
-        At a glance, here is your last clocked time, current time worked, total
-        time worked, and estimated pay for the week
+        At a glance, here is your time information and estimated pay for the
+        week
         <br />
       </p>
 
-      {tick}
-      {storage?.preferences?.k401Percentage}
-
-      {/* <ClockedStatus
+      <ClockedStatus
         className="mt-6"
+        tick={tick}
         isClockedIn={false}
-        clockedTime={clockedTime}
-      /> */}
-      {/* <CurrentTimeClock className="mt-6" currentTime={currentTime} />
-      <TotalTimeClock className="mt-6" totalTime={totalTime} />
+        clockedInTime={storage?.clockedInTime}
+      />
+      <TotalTimeClock
+        className="mt-6"
+        tick={tick}
+        isClockedIn={false}
+        clockedInTime={storage?.clockedInTime}
+        existingTime={storage?.timeWorked}
+      />
       <PayPage
         className="mt-6"
-        estimatedPay={estimatedPay}
-        estimatedPayWithDeductions={estimatedPayWithDeductions}
-      /> */}
+        tick={tick}
+        isClockedIn={false}
+        k401DeductionPercentage={storage?.preferences?.k401Percentage}
+        clockedInTime={storage?.clockedInTime}
+        existingTime={storage?.timeWorked}
+      />
+
+      <div className="flex-1" />
+
+      <Separator className="my-6" />
+
+      <div className="justifty-between">
+        <Button type="button" className="float-left" onClick={onClockIn}>
+          <ExternalLink />
+          Clock in
+        </Button>
+
+        <Link to="/settings">
+          <Button type="button" className="float-right">
+            <Settings />
+            Settings
+          </Button>
+        </Link>
+      </div>
     </div>
   )
 }

@@ -23,13 +23,21 @@ export function calculateCurrentClockedInTime(
 
 export function calculateTotalTimeWorked(
   clockedInTime: number,
-  existingTime: TimeWorked
+  existingTime: TimeWorked,
+  isClockedIn: boolean
 ): TotalTimeDuration {
-  const { clockedInHours, clockedInMinutes, clockedInSeconds } =
-    calculateCurrentClockedInTime(clockedInTime)
+  let timeWorkedHours = existingTime.hours
+  let timeWorkedMinutes = existingTime.minutes
+  let timeWorkedSeconds = 0
 
-  let timeWorkedHours = existingTime.hours + clockedInHours
-  let timeWorkedMinutes = existingTime.minutes + clockedInMinutes
+  if (isClockedIn) {
+    const { clockedInHours, clockedInMinutes, clockedInSeconds } =
+      calculateCurrentClockedInTime(clockedInTime)
+
+    timeWorkedHours = existingTime.hours + clockedInHours
+    timeWorkedMinutes = existingTime.minutes + clockedInMinutes
+    timeWorkedSeconds = clockedInSeconds
+  }
 
   if (timeWorkedMinutes >= 60) {
     timeWorkedHours += Math.floor(timeWorkedMinutes / 60)
@@ -39,6 +47,6 @@ export function calculateTotalTimeWorked(
   return {
     timeWorkedHours,
     timeWorkedMinutes,
-    timeWorkedSeconds: clockedInSeconds
+    timeWorkedSeconds
   }
 }

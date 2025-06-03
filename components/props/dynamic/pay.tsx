@@ -5,6 +5,8 @@ import { calculateTotalTimeWorked } from "~lib/data/time"
 
 interface PayPageProps extends React.ComponentPropsWithoutRef<"div"> {
   tick: number
+  isClockedIn: boolean
+  k401DeductionPercentage?: number
   clockedInTime?: number
   existingTime?: TimeWorked
 }
@@ -12,6 +14,8 @@ interface PayPageProps extends React.ComponentPropsWithoutRef<"div"> {
 export function PayPage({
   className,
   tick,
+  isClockedIn,
+  k401DeductionPercentage,
   clockedInTime,
   existingTime,
   ...props
@@ -31,11 +35,9 @@ export function PayPage({
     const stateTax = pay * 0.023 // 2.3%
 
     const taxes = socialSecurity + medicare + federalWithholding + stateTax
+    const k401Deduction = k401DeductionPercentage * pay
 
-    // TODO: pull from storage
-    const deduction = 0.06 * pay // 6% deduction for 401k
-
-    const deductionPay = pay - taxes - deduction
+    const deductionPay = pay - taxes - k401Deduction
 
     setEstimatedDeductionsPay(`${deductionPay.toFixed(2)} USD`)
   }
@@ -44,7 +46,7 @@ export function PayPage({
     const payRate = 25
 
     const { timeWorkedHours, timeWorkedMinutes, timeWorkedSeconds } =
-      calculateTotalTimeWorked(clockedInTime, existingTime)
+      calculateTotalTimeWorked(clockedInTime, existingTime, isClockedIn)
 
     const totalPay =
       timeWorkedHours * payRate +

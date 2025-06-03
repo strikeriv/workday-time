@@ -1,16 +1,14 @@
 import { Info } from "lucide-react"
 import { useEffect, useState } from "react"
 
-import type { ClockedInDuration, TimeWorked } from "~interfaces/interfaces"
-import {
-  calculateCurrentClockedInTime,
-  calculateTotalTimeWorked
-} from "~lib/data/time"
+import type { TimeWorked } from "~interfaces/interfaces"
+import { calculateTotalTimeWorked } from "~lib/data/time"
 
 import { CustomTooltip } from "../tooltip"
 
 interface TotalTimeClockProps extends React.ComponentPropsWithoutRef<"div"> {
   tick: number
+  isClockedIn: boolean
   clockedInTime?: number
   existingTime?: TimeWorked
 }
@@ -18,6 +16,7 @@ interface TotalTimeClockProps extends React.ComponentPropsWithoutRef<"div"> {
 export function TotalTimeClock({
   className,
   tick,
+  isClockedIn,
   clockedInTime,
   existingTime,
   ...props
@@ -26,7 +25,7 @@ export function TotalTimeClock({
 
   function updateTotalTimeWorked() {
     const { timeWorkedHours, timeWorkedMinutes, timeWorkedSeconds } =
-      calculateTotalTimeWorked(clockedInTime, existingTime)
+      calculateTotalTimeWorked(clockedInTime, existingTime, isClockedIn)
 
     setTotalWorkedTime(
       `${timeWorkedHours} hours, ${timeWorkedMinutes} minutes, ~${timeWorkedSeconds} seconds`
@@ -35,7 +34,7 @@ export function TotalTimeClock({
 
   useEffect(() => {
     if (clockedInTime == null) return
-    if (clockedInTime == null) return
+    if (existingTime == null) return
 
     updateTotalTimeWorked()
   }, [tick])

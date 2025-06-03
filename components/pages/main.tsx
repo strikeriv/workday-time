@@ -14,8 +14,9 @@ import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 
 import { Status } from "~components/props/status"
-import { StorageKeys } from "~constants"
 import { Status as StatusType, type Storage } from "~interfaces/interfaces"
+import { StorageKeys } from "~lib/constants"
+import { getStorage } from "~lib/data/storage"
 
 import { ClockedInPage } from "./views/clocked-in"
 import { ClockedOutPage } from "./views/clocked-out"
@@ -36,55 +37,31 @@ export function Main({
     return () => clearInterval(interval)
   }, [])
 
-  async function getStorageValues(): Promise<void> {
-    let values: Storage = (await chrome.storage.local.get([
-      StorageKeys.ClockedInTime,
-      StorageKeys.TimeWorked,
-      StorageKeys.Preferences,
-      StorageKeys.LastUpdated,
-      StorageKeys.Status
-    ])) as Storage
+  async function updateStorageValues(): Promise<void> {
+    const storage = await getStorage()
 
-    // check to see if values exist, if not, set them to default values
-    if (!values[StorageKeys.ClockedInTime] || !values[StorageKeys.TimeWorked]) {
-      values = {
-        [StorageKeys.Preferences]: {
-          hoursToWork: 8,
-          autoModeEnabled: false,
-          k401DeductionEnabled: false,
-          k401Percentage: 6
-        },
-        [StorageKeys.LastUpdated]: Date.now(),
-        [StorageKeys.ClockedInTime]: null,
-        [StorageKeys.TimeWorked]: null,
-        [StorageKeys.Status]: StatusType.Unknown
-      }
-
-      await chrome.storage.local.set(values)
-    }
-
-    setStorage(values)
-    setStatus(values.status)
+    setStorage(storage)
+    setStatus(storage.status)
   }
 
-  async function clockOut() {
-    setStatus(
-      status === StatusType.ClockedIn
-        ? StatusType.ClockedOut
-        : StatusType.ClockedIn
-    )
-    // const resp = await sendToBackground({
-    //   name: "clock-out"
-    // })
+  async function handleClockIn() {
+    await chrome.storage.local.set({
+      [StorageKeys.Status]: StatusType.ClockedIn
+    })
+    // Optionally re-fetch storage here
+    setStatus(StatusType.ClockedIn)
+  }
 
-    // const { message, status } = resp
-    // if (status !== "GOOD") {
-    //   console.error("Error clocking out:", message)
-    // }
+  async function handleClockOut() {
+    await chrome.storage.local.set({
+      [StorageKeys.Status]: StatusType.ClockedOut
+    })
+    // Optionally re-fetch storage here
+    setStatus(StatusType.ClockedOut)
   }
 
   useEffect(() => {
-    getStorageValues()
+    updateStorageValues()
   }, [])
 
   return (
@@ -112,6 +89,7 @@ export function Main({
             } else if (status === StatusType.ClockedIn) {
               content = (
                 <ClockedInPage
+                  onClockOut={handleClockOut}
                   className="flex h-full flex-1 flex-col"
                   tick={tick}
                   storage={storage}
@@ -120,6 +98,7 @@ export function Main({
             } else {
               content = (
                 <ClockedOutPage
+                  onClockIn={handleClockIn}
                   className="flex h-full flex-1 flex-col"
                   tick={tick}
                   storage={storage}
