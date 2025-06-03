@@ -1,8 +1,15 @@
 export interface Storage {
+  preferences: Preferences
   lastUpdated: number
   clockedInTime: number
   timeWorked: TimeWorked
   status: Status
+}
+export interface Preferences {
+  hoursToWork: number
+  autoModeEnabled: boolean
+  k401DeductionEnabled: boolean
+  k401Percentage: number
 }
 
 export enum Status {

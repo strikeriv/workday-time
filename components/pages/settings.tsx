@@ -9,7 +9,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -17,16 +16,17 @@ import {
 } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
-import { zodResolver } from "@hookform/resolvers/zod"
 import jbhunt from "data-base64:~assets/jbhunt.png"
 import { ArrowLeft, Loader2Icon } from "lucide-react"
+import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { Link } from "react-router-dom"
 import { z } from "zod"
 
+import { wait } from "~background/util"
 import { Input } from "~components/ui/input"
-import { Label } from "~components/ui/label"
 import { Switch } from "~components/ui/switch"
+import { StorageKeys } from "~constants"
 
 import { Status } from "../props/status"
 
@@ -41,8 +41,9 @@ export function SettingsPage({
   className,
   ...props
 }: Readonly<React.ComponentPropsWithoutRef<"div">>) {
-  const form = useForm<z.infer<typeof settingsSchema>>({
-    resolver: zodResolver(settingsSchema),
+  const [saving, setSaving] = useState<boolean>(false)
+
+  const form = useForm({
     defaultValues: {
       hoursToWork: 8,
       autoModeEnabled: false,
@@ -51,10 +52,13 @@ export function SettingsPage({
     }
   })
 
-  function onSubmit(values: z.infer<typeof settingsSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values)
+  async function onSubmit(values: z.infer<typeof settingsSchema>) {
+    setSaving(true)
+
+    await chrome.storage.local.set({ [StorageKeys.Preferences]: values })
+    await wait(500) // chrome storage is basically instant, so this is just to show the loading state
+
+    setSaving(false)
   }
 
   return (
@@ -81,13 +85,6 @@ export function SettingsPage({
                 <p className="text-sm text-muted-foreground">
                   Adjust your settings below to customize the extension
                 </p>
-
-                {/* <div className="flex w-full items-center">
-                  <Input type="number" defaultValue={8} className="w-1/5" />
-                  <Label className="pl-2 text-muted-foreground">
-                    Hours to work
-                  </Label>
-                </div> */}
 
                 <FormField
                   control={form.control}
@@ -125,16 +122,23 @@ export function SettingsPage({
                   )}
                 />
 
-                <div>
-                  <div className="flex items-center space-x-2">
-                    <Switch id="airplane-mode" />
-                    <Label
-                      className="text-muted-foreground"
-                      htmlFor="airplane-mode">
-                      Auto mode
-                    </Label>
-                  </div>
-                </div>
+                <FormField
+                  control={form.control}
+                  name="autoModeEnabled"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center">
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormLabel className="!my-0 pl-2 text-muted-foreground">
+                        Auto Mode
+                      </FormLabel>
+                    </FormItem>
+                  )}
+                />
 
                 <Separator className="my-6" />
 
@@ -142,38 +146,59 @@ export function SettingsPage({
                   Further settings to customize your experience
                 </p>
 
-                <div>
-                  <div className="flex items-center space-x-2">
-                    <Switch id="airplane-mode" />
-                    <Label
-                      className="text-muted-foreground"
-                      htmlFor="airplane-mode">
-                      Include 401k in deductions?
-                    </Label>
-                  </div>
-                </div>
+                <FormField
+                  control={form.control}
+                  name="k401DeductionEnabled"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center">
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormLabel className="!my-0 pl-2 text-muted-foreground">
+                        Include 401k into deduction
+                      </FormLabel>
+                    </FormItem>
+                  )}
+                />
 
-                <div className="flex w-full items-center">
-                  <div className="relative w-1/5">
-                    <Input
-                      id="k401-percentage"
-                      type="number"
-                      min={0}
-                      max={100}
-                      step={1}
-                      defaultValue={6}
-                      className="pr-px" // More padding for spinner + percent
-                    />
-                    <span className="pointer-events-none absolute right-6 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
-                      %
-                    </span>
-                  </div>
-                  <Label
-                    className="pl-2 text-muted-foreground"
-                    htmlFor="k401-percentage">
-                    401k percentage
-                  </Label>
-                </div>
+                <FormField
+                  control={form.control}
+                  name="k401Percentage"
+                  render={({ field }) => (
+                    <FormItem className="flex w-full items-center">
+                      <FormControl>
+                        <Input
+                          type="number"
+                          min={0}
+                          max={99}
+                          step={1}
+                          {...field}
+                          value={field.value ?? ""}
+                          onChange={(e) =>
+                            field.onChange(e.target.valueAsNumber)
+                          }
+                          onKeyDown={(e) => {
+                            if (
+                              e.key !== "ArrowUp" &&
+                              e.key !== "ArrowDown" &&
+                              e.key !== "Tab"
+                            ) {
+                              e.preventDefault()
+                            }
+                          }}
+                          className="w-1/5"
+                        />
+                      </FormControl>
+                      <FormLabel className="!my-0 pl-2 text-muted-foreground">
+                        401k percentage
+                      </FormLabel>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <div className="flex-1" />
               </div>
@@ -181,15 +206,16 @@ export function SettingsPage({
               <Separator className="my-6" />
 
               <div className="justifty-between">
-                <Button type="submit" className="float-left">
-                  Save Settings
-                </Button>
-
-                {/* 
-                <Button disabled>
-                  <Loader2Icon className="animate-spin" />
-                  Save Settings
-                </Button> */}
+                {saving ? (
+                  <Button disabled>
+                    <Loader2Icon className="animate-spin" />
+                    Saving Settings...
+                  </Button>
+                ) : (
+                  <Button type="submit" className="float-left">
+                    Save Settings
+                  </Button>
+                )}
 
                 <Link to="/">
                   <Button type="button" className="float-right">
