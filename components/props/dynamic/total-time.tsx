@@ -34,8 +34,8 @@ export function TotalTimeClock({
   }
 
   useEffect(() => {
-    if (!clockedInTime) return
-    if (!existingTime) return
+    if (clockedInTime == null) return
+    if (clockedInTime == null) return
 
     updateTotalTimeWorked()
   }, [tick])

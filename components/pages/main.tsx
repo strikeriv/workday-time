@@ -13,14 +13,13 @@ import { ExternalLink, Settings } from "lucide-react"
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 
-import { sendToBackground } from "@plasmohq/messaging"
-
+import { Status } from "~components/props/status"
 import { StorageKeys } from "~constants"
-import type { Storage } from "~interfaces/interfaces"
+import { Status as StatusType, type Storage } from "~interfaces/interfaces"
 
-import { Status } from "../props/status"
 import { ClockedInPage } from "./views/clocked-in"
-import { NoData } from "./views/no-data"
+import { ClockedOutPage } from "./views/clocked-out"
+import { DesyncedPage } from "./views/desynced"
 
 const workdayURL = "https://wd501.myworkday.com/jbhunt/d/home.htmld"
 
@@ -29,6 +28,7 @@ export function Main({
   ...props
 }: Readonly<React.ComponentPropsWithoutRef<"div">>) {
   const [tick, setTick] = useState(0)
+  const [status, setStatus] = useState<StatusType>(null)
   const [storage, setStorage] = useState<Storage>(null)
 
   useEffect(() => {
@@ -37,23 +37,50 @@ export function Main({
   }, [])
 
   async function getStorageValues(): Promise<void> {
-    const clockedInKey = StorageKeys.ClockedInTime
-    const timeWorkedKey = StorageKeys.TimeWorked
+    let values: Storage = (await chrome.storage.local.get([
+      StorageKeys.ClockedInTime,
+      StorageKeys.TimeWorked,
+      StorageKeys.Preferences,
+      StorageKeys.LastUpdated,
+      StorageKeys.Status
+    ])) as Storage
 
-    setStorage(
-      (await chrome.storage.local.get([clockedInKey, timeWorkedKey])) as Storage
-    )
+    // check to see if values exist, if not, set them to default values
+    if (!values[StorageKeys.ClockedInTime] || !values[StorageKeys.TimeWorked]) {
+      values = {
+        [StorageKeys.Preferences]: {
+          hoursToWork: 8,
+          autoModeEnabled: false,
+          k401DeductionEnabled: false,
+          k401Percentage: 6
+        },
+        [StorageKeys.LastUpdated]: Date.now(),
+        [StorageKeys.ClockedInTime]: null,
+        [StorageKeys.TimeWorked]: null,
+        [StorageKeys.Status]: StatusType.Unknown
+      }
+
+      await chrome.storage.local.set(values)
+    }
+
+    setStorage(values)
+    setStatus(values.status)
   }
 
   async function clockOut() {
-    const resp = await sendToBackground({
-      name: "clock-out"
-    })
+    setStatus(
+      status === StatusType.ClockedIn
+        ? StatusType.ClockedOut
+        : StatusType.ClockedIn
+    )
+    // const resp = await sendToBackground({
+    //   name: "clock-out"
+    // })
 
-    const { message, status } = resp
-    if (status !== "GOOD") {
-      console.error("Error clocking out:", message)
-    }
+    // const { message, status } = resp
+    // if (status !== "GOOD") {
+    //   console.error("Error clocking out:", message)
+    // }
   }
 
   useEffect(() => {
@@ -61,8 +88,8 @@ export function Main({
   }, [])
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card>
+    <div className={cn("flex h-full flex-col", className)} {...props}>
+      <Card className="flex h-full flex-col">
         <CardHeader>
           <CardTitle>
             <div className="flex w-full items-center">
@@ -75,32 +102,32 @@ export function Main({
             An extention to make Workday life easier
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex h-full flex-col">
-          <div className="flex h-full flex-col">
-            <Separator className="mb-6" />
+        <CardContent className="flex h-full flex-1 flex-col">
+          <Separator className="mb-6" />
 
-            {false ? (
-              <NoData />
-            ) : (
-              <ClockedInPage tick={tick} storage={storage} />
-            )}
-
-            <Separator className="my-6" />
-
-            <div className="justifty-between">
-              <Button type="button" className="float-left" onClick={clockOut}>
-                <ExternalLink />
-                Clock out
-              </Button>
-
-              <Link to="/settings">
-                <Button type="button" className="float-right">
-                  <Settings />
-                  Settings
-                </Button>
-              </Link>
-            </div>
-          </div>
+          {(() => {
+            let content
+            if (status === StatusType.Unknown) {
+              content = <DesyncedPage className="flex h-full flex-1 flex-col" />
+            } else if (status === StatusType.ClockedIn) {
+              content = (
+                <ClockedInPage
+                  className="flex h-full flex-1 flex-col"
+                  tick={tick}
+                  storage={storage}
+                />
+              )
+            } else {
+              content = (
+                <ClockedOutPage
+                  className="flex h-full flex-1 flex-col"
+                  tick={tick}
+                  storage={storage}
+                />
+              )
+            }
+            return content
+          })()}
         </CardContent>
       </Card>
     </div>

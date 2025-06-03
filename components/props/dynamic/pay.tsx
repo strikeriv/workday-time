@@ -55,8 +55,8 @@ export function PayPage({
   }
 
   useEffect(() => {
-    if (!clockedInTime) return
-    if (!existingTime) return
+    if (clockedInTime == null) return
+    if (clockedInTime == null) return
 
     const pay = calculatePay()
 

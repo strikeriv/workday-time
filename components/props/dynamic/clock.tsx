@@ -24,7 +24,7 @@ export function ClockedStatus({
   }
 
   useEffect(() => {
-    if (!clockedInTime) return
+    if (clockedInTime == null) return
 
     updateClockedTime()
   }, [tick])

@@ -28,7 +28,7 @@ export function CurrentTimeClock({
   }
 
   useEffect(() => {
-    if (!clockedInTime) return
+    if (clockedInTime == null) return
 
     updateClockedInTimer()
   }, [tick])

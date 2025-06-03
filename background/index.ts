@@ -1,6 +1,7 @@
 import { Page } from "puppeteer-core/lib/esm/puppeteer/puppeteer-core-browser.js"
 
 import { getTitleOfPage, wait } from "~background/util"
+import { StorageKeys } from "~constants"
 
 import type { BrowserState } from "./interfaces/interfaces"
 import { registerWebRequestListener } from "./listener/web-request"
@@ -23,7 +24,14 @@ const browserState: BrowserState = {
 async function grabTimeFromWorkday(): Promise<void> {
   console.log("Started time data from Workday. Clearing previous data...")
 
-  await chrome.storage.local.clear()
+  // clear previous data ( except preferences )
+  await chrome.storage.local.remove([
+    StorageKeys.ClockedInTime,
+    StorageKeys.TimeWorked,
+    StorageKeys.LastUpdated,
+    StorageKeys.Status
+  ])
+
   try {
     // grab & attach to current page
     browserState.currentTab = await grabCurrentTab()
@@ -70,7 +78,7 @@ async function grabTimeFromWorkday(): Promise<void> {
       browserState.currentPage = newState.currentPage
     }
 
-    //await closeTab() // This will now always close the correct tab
+    //await closeTab()
 
     console.log("Grabbed time data successfully. Closing tab...")
   } catch (error) {
@@ -146,7 +154,7 @@ async function clockOut(): Promise<void> {
       }
     }
 
-    //await closeTab() // This will now always close the correct tab
+    //await closeTab()
 
     console.log("Grabbed time data successfully. Closing tab...")
   } catch (error) {

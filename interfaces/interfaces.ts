@@ -14,7 +14,8 @@ export interface Preferences {
 
 export enum Status {
   ClockedIn = "ClockedIn",
-  ClockedOut = "ClockedOut"
+  ClockedOut = "ClockedOut",
+  Unknown = "Unknown"
 }
 
 export interface TimeWorked {

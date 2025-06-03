@@ -1,7 +1,13 @@
+import { ExternalLink, Settings } from "lucide-react"
+import { Link } from "react-router-dom"
+
+import { clockOut } from "~background"
 import { ClockedStatus } from "~components/props/dynamic/clock"
 import { CurrentTimeClock } from "~components/props/dynamic/current-time"
 import { PayPage } from "~components/props/dynamic/pay"
 import { TotalTimeClock } from "~components/props/dynamic/total-time"
+import { Button } from "~components/ui/button"
+import { Separator } from "~components/ui/separator"
 import type { Storage } from "~interfaces/interfaces"
 
 interface ClockedInPageProps extends React.ComponentPropsWithoutRef<"div"> {
@@ -45,6 +51,22 @@ export function ClockedInPage({
         clockedInTime={storage?.clockedInTime}
         existingTime={storage?.timeWorked}
       />
+
+      <Separator className="my-6" />
+
+      <div className="justifty-between">
+        <Button type="button" className="float-left" onClick={clockOut}>
+          <ExternalLink />
+          Clock out
+        </Button>
+
+        <Link to="/settings">
+          <Button type="button" className="float-right">
+            <Settings />
+            Settings
+          </Button>
+        </Link>
+      </div>
     </div>
   )
 }
