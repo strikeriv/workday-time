@@ -53,6 +53,7 @@ export function ClockedInPage({
         className="mt-6"
         tick={tick}
         isClockedIn={true}
+        k401DeductionEnabled={storage?.preferences?.k401DeductionEnabled}
         k401DeductionPercentage={storage?.preferences?.k401Percentage}
         clockedInTime={storage?.clockedInTime}
         existingTime={storage?.timeWorked}

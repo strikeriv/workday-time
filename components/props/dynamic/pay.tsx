@@ -6,6 +6,7 @@ import { calculateTotalTimeWorked } from "~lib/data/time"
 interface PayPageProps extends React.ComponentPropsWithoutRef<"div"> {
   tick: number
   isClockedIn: boolean
+  k401DeductionEnabled?: boolean
   k401DeductionPercentage?: number
   clockedInTime?: number
   existingTime?: TimeWorked
@@ -15,6 +16,7 @@ export function PayPage({
   className,
   tick,
   isClockedIn,
+  k401DeductionEnabled,
   k401DeductionPercentage,
   clockedInTime,
   existingTime,
@@ -35,9 +37,11 @@ export function PayPage({
     const stateTax = pay * 0.023 // 2.3%
 
     const taxes = socialSecurity + medicare + federalWithholding + stateTax
-    const k401Deduction = k401DeductionPercentage * pay
+    const deductions = k401DeductionEnabled
+      ? (k401DeductionPercentage / 100) * pay
+      : 0
 
-    const deductionPay = pay - taxes - k401Deduction
+    const deductionPay = pay - taxes - deductions
 
     setEstimatedDeductionsPay(`${deductionPay.toFixed(2)} USD`)
   }

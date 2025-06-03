@@ -57,11 +57,6 @@ export function SettingsPage({
   async function onSubmit(values: z.infer<typeof settingsSchema>) {
     setSaving(true)
 
-    // convert values to the correct types
-    values.hoursToWork = parseInt(values.hoursToWork.toString())
-    values.k401Percentage = parseFloat(values.k401Percentage.toString()) / 100
-
-    console.log("values", values)
     await chrome.storage.local.set({ [StorageKeys.Preferences]: values })
     await wait(500) // chrome storage is basically instant, so this is just to show the loading state
 
@@ -70,11 +65,6 @@ export function SettingsPage({
 
   async function updateStorageValues(): Promise<void> {
     const storage = await getStorage()
-    const values = storage.preferences
-
-    // convert values to the correct types
-    values.hoursToWork = parseInt(values.hoursToWork.toString())
-    values.k401Percentage = parseFloat(values.k401Percentage.toString()) * 100
 
     form.reset(storage.preferences)
   }
