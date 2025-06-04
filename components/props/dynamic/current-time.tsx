@@ -19,11 +19,11 @@ export function CurrentTimeClock({
   const [currentTime, setCurrentTime] = useState<string>("loading...")
 
   function updateClockedInTimer() {
-    const { clockedInHours, clockedInMinutes, clockedInSeconds } =
+    const { clockedHours, clockedMinutes, clockedSeconds } =
       calculateCurrentClockedInTime(clockedInTime)
 
     setCurrentTime(
-      `${clockedInHours} hours, ${clockedInMinutes} minutes, ~${clockedInSeconds} seconds`
+      `${clockedHours} hours, ${clockedMinutes} minutes, ~${clockedSeconds} seconds`
     )
   }
 

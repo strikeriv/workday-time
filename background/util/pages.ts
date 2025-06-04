@@ -4,7 +4,23 @@ import {
   Page
 } from "puppeteer-core/lib/esm/puppeteer/puppeteer-core-browser.js"
 
+import type { BrowserState } from "~background/interfaces/interfaces"
 import { wait } from "~background/util"
+
+async function openWorkdayTab(homeWorkdayURL: string): Promise<BrowserState> {
+  const browserState: BrowserState = {
+    currentTab: null,
+    currentPage: null
+  }
+
+  const newTab = await openNewPageTab(homeWorkdayURL, 0)
+  const newPage = await attachToTab(newTab)
+
+  browserState.currentTab = newTab
+  browserState.currentPage = newPage
+
+  return browserState
+}
 
 async function openNewPageTab(
   url: string,
@@ -44,4 +60,4 @@ async function gotoURL(
   return tab
 }
 
-export { grabCurrentTab, attachToTab, openNewPageTab, gotoURL }
+export { openWorkdayTab, grabCurrentTab, attachToTab, openNewPageTab, gotoURL }

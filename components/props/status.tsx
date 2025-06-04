@@ -20,7 +20,7 @@ export const Status = forwardRef<
     gray: "text-gray-400"
   }[statusColor]
 
-  const clockedInKey = StorageKeys.ClockedInTime
+  const clockedInKey = StorageKeys.ClockedTime
   const timeWorkedKey = StorageKeys.TimeWorked
 
   async function evaluateStatus() {

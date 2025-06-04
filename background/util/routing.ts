@@ -3,40 +3,68 @@ import { Page } from "puppeteer-core/lib/esm/puppeteer/puppeteer-core-browser.js
 import type { BrowserState } from "~background/interfaces/interfaces"
 
 import { wait } from "."
-import { parsePage } from "./time"
 
-async function navigateToWorkdayTimePage(
-  currentTab: chrome.tabs.Tab,
-  currentPage: Page
-): Promise<BrowserState> {
+async function evaluatePageNavigation(
+  browserState: BrowserState
+): Promise<boolean> {
+  const { currentTab, currentPage } = browserState
+
+  if (!currentTab || !currentPage) {
+    console.error("Something went wrong, no current tab or page found.")
+    return false
+  }
+
+  // page will be on the workday home page
+  const status = await navigateToWorkdayTimePage(currentPage)
+
+  return status
+}
+
+async function navigateToWorkdayTimePage(currentPage: Page): Promise<boolean> {
   // wait for and click "View All Apps"
-  await currentPage.waitForSelector("[data-automation-id=pex-view-all-apps]", {
-    timeout: 5000
-  })
-  await currentPage.locator("[data-automation-id=pex-view-all-apps]").click()
-  await wait(500)
-  await findAndClickOnTimeButtom(currentPage)
+  try {
+    const viewAllAppsSelector = "[data-automation-id=pex-view-all-apps]"
 
-  return {
-    currentTab,
-    currentPage
+    await currentPage.waitForSelector(viewAllAppsSelector, {
+      timeout: 5000
+    })
+    await currentPage.locator(viewAllAppsSelector).click()
+
+    await findAndClickOnTimeButtom(currentPage)
+
+    await currentPage.waitForNavigation({
+      waitUntil: "networkidle0",
+      timeout: 10000
+    })
+
+    return true
+  } catch {
+    return false
   }
 }
 
 async function findAndClickOnTimeButtom(currentPage: Page): Promise<void> {
-  const sidebarItems = await currentPage.$$("[data-automation-id=subMenuItem]")
-  if (!sidebarItems) return
-  const result = await currentPage.evaluate(
-    (...elements) => elements.map((element) => element.textContent),
-    ...sidebarItems
-  )
-  const buttonIndex = result.findIndex((item) => item === "Time")
-  if (buttonIndex !== -1) {
-    await sidebarItems[buttonIndex].click()
+  const subMenuSelector = "[data-automation-id=subMenuItem]"
 
-    await wait(1000)
-    await parsePage(currentPage)
+  await currentPage.waitForSelector(subMenuSelector, {
+    timeout: 5000
+  })
+
+  await wait(500) // the panel is sliding
+
+  const allLocators = await currentPage.$$(subMenuSelector)
+  for (const locator of allLocators) {
+    const text = await currentPage.evaluate((el) => el.textContent, locator)
+    if (text && text.trim().toLowerCase() === "time") {
+      await locator.click()
+      console.log("Clicked on Time button successfully.")
+      break
+    }
   }
 }
 
-export { findAndClickOnTimeButtom, navigateToWorkdayTimePage }
+export {
+  evaluatePageNavigation,
+  findAndClickOnTimeButtom,
+  navigateToWorkdayTimePage
+}

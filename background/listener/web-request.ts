@@ -1,3 +1,4 @@
+import { changeClockedStatus } from "~background"
 import { Status } from "~interfaces/interfaces"
 import { StorageKeys } from "~lib/constants"
 
@@ -17,6 +18,8 @@ export function registerWebRequestListener() {
         const formData = details.requestBody?.formData
         const eventId = formData?._eventId_submit?.[0]
 
+        console.log(formData, "form data for request")
+        console.log(details, "url details for request")
         if (!eventId) {
           console.warn("No eventId found in request body.")
           return
@@ -24,7 +27,9 @@ export function registerWebRequestListener() {
 
         if (eventId === EventIds.ClockOut.toString()) {
           console.log("Clock out event detected.")
-          updateStorageOnClockOut()
+          changeClockedStatus(true).then(() => {
+            console.log("insane if this works first try")
+          })
         } else if (eventId === EventIds.ClockIn.toString()) {
           console.log("Clock in event detected.")
           // Handle clock in logic here
@@ -40,7 +45,7 @@ export function registerWebRequestListener() {
 
 function updateStorageOnClockOut() {
   chrome.storage.local.set({
-    [StorageKeys.ClockedInTime]: null,
+    [StorageKeys.ClockedTime]: null,
     [StorageKeys.Status]: Status.ClockedOut
   })
   console.log("Clocked out and storage updated.")

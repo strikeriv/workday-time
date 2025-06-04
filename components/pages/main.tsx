@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -9,10 +8,14 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
 import jbhunt from "data-base64:~assets/jbhunt.png"
-import { ExternalLink, Settings } from "lucide-react"
 import { useEffect, useState } from "react"
-import { Link } from "react-router-dom"
 
+import { sendToBackground } from "@plasmohq/messaging"
+
+import {
+  Status as MessageStatus,
+  type Message
+} from "~background/interfaces/interfaces"
 import { Status } from "~components/props/status"
 import { Status as StatusType, type Storage } from "~interfaces/interfaces"
 import { StorageKeys } from "~lib/constants"
@@ -29,6 +32,8 @@ export function Main({
   ...props
 }: Readonly<React.ComponentPropsWithoutRef<"div">>) {
   const [tick, setTick] = useState(0)
+  const [refresh, setRefresh] = useState(0)
+
   const [status, setStatus] = useState<StatusType>(null)
   const [storage, setStorage] = useState<Storage>(null)
 
@@ -45,6 +50,14 @@ export function Main({
   }
 
   async function handleClockIn() {
+    const status = storage.status
+
+    const resp: Message = await sendToBackground({
+      name: "clock-in"
+    })
+
+    console.log(resp)
+
     await chrome.storage.local.set({
       [StorageKeys.Status]: StatusType.ClockedIn
     })
@@ -53,16 +66,37 @@ export function Main({
   }
 
   async function handleClockOut() {
-    await chrome.storage.local.set({
-      [StorageKeys.Status]: StatusType.ClockedOut
+    const status = storage.status
+
+    const resp: Message = await sendToBackground({
+      name: "clock-out"
     })
+
+    // await chrome.storage.local.set({
+    //   [StorageKeys.Status]: StatusType.ClockedOut
+    // })
     // Optionally re-fetch storage here
     setStatus(StatusType.ClockedOut)
   }
 
+  async function handleDesyncedData() {
+    const resp: Message = await sendToBackground({ name: "sync-data" })
+    console.log(resp)
+    if (resp.status === MessageStatus.Success) {
+      console.log("Data synced successfully.")
+      setRefresh((r) => r + 1) // trigger a refresh
+    }
+
+    // await chrome.storage.local.set({
+    //   [StorageKeys.Status]: StatusType.ClockedOut
+    // })
+    // Optionally re-fetch storage here
+    // setStatus(StatusType.ClockedOut)
+  }
+
   useEffect(() => {
     updateStorageValues()
-  }, [])
+  }, [refresh])
 
   return (
     <div className={cn("flex h-full flex-col", className)} {...props}>
@@ -85,7 +119,12 @@ export function Main({
           {(() => {
             let content
             if (status === StatusType.Unknown) {
-              content = <DesyncedPage className="flex h-full flex-1 flex-col" />
+              content = (
+                <DesyncedPage
+                  onSyncData={handleDesyncedData}
+                  className="flex h-full flex-1 flex-col"
+                />
+              )
             } else if (status === StatusType.ClockedIn) {
               content = (
                 <ClockedInPage

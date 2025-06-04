@@ -4,3 +4,13 @@ export interface BrowserState {
   currentTab: chrome.tabs.Tab
   currentPage: Page
 }
+
+export interface Message {
+  message: string
+  status: Status
+}
+
+export enum Status {
+  Success = "success",
+  Error = "error"
+}

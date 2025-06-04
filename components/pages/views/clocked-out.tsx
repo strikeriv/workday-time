@@ -2,13 +2,11 @@ import { ExternalLink, Settings } from "lucide-react"
 import { Link } from "react-router-dom"
 
 import { ClockedStatus } from "~components/props/dynamic/clock"
-import { CurrentTimeClock } from "~components/props/dynamic/current-time"
 import { PayPage } from "~components/props/dynamic/pay"
 import { TotalTimeClock } from "~components/props/dynamic/total-time"
 import { Button } from "~components/ui/button"
 import { Separator } from "~components/ui/separator"
-import { Status, type Storage } from "~interfaces/interfaces"
-import { StorageKeys } from "~lib/constants"
+import { type Storage } from "~interfaces/interfaces"
 
 interface ClockedOutPageProps extends React.ComponentPropsWithoutRef<"div"> {
   tick: number
@@ -37,13 +35,13 @@ export function ClockedOutPage({
         className="mt-6"
         tick={tick}
         isClockedIn={false}
-        clockedInTime={storage?.clockedInTime}
+        clockedInTime={storage?.clockedTime}
       />
       <TotalTimeClock
         className="mt-6"
         tick={tick}
         isClockedIn={false}
-        clockedInTime={storage?.clockedInTime}
+        clockedInTime={storage?.clockedTime}
         existingTime={storage?.timeWorked}
       />
       <PayPage
@@ -51,7 +49,7 @@ export function ClockedOutPage({
         tick={tick}
         isClockedIn={false}
         k401DeductionPercentage={storage?.preferences?.k401Percentage}
-        clockedInTime={storage?.clockedInTime}
+        clockedInTime={storage?.clockedTime}
         existingTime={storage?.timeWorked}
       />
 

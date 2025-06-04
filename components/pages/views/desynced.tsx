@@ -1,14 +1,18 @@
 import { ExternalLink, Settings } from "lucide-react"
 import { Link } from "react-router-dom"
 
-import { grabTimeFromWorkday } from "~background"
 import { Button } from "~components/ui/button"
 import { Separator } from "~components/ui/separator"
 
+interface ClockedOutPageProps extends React.ComponentPropsWithoutRef<"div"> {
+  onSyncData: () => void
+}
+
 export function DesyncedPage({
   className,
+  onSyncData,
   ...props
-}: Readonly<React.ComponentPropsWithoutRef<"div">>) {
+}: Readonly<ClockedOutPageProps>) {
   return (
     <div className={className} {...props}>
       <h2 className="text-base font-bold">No Data Available</h2>
@@ -22,10 +26,7 @@ export function DesyncedPage({
       <Separator className="my-6" />
 
       <div className="justifty-between">
-        <Button
-          type="button"
-          className="float-left"
-          onClick={grabTimeFromWorkday}>
+        <Button type="button" className="float-left" onClick={onSyncData}>
           <ExternalLink />
           Sync Data
         </Button>

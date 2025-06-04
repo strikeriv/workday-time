@@ -1,15 +1,13 @@
 import { ExternalLink, Settings } from "lucide-react"
 import { Link } from "react-router-dom"
 
-import { clockOut } from "~background"
 import { ClockedStatus } from "~components/props/dynamic/clock"
 import { CurrentTimeClock } from "~components/props/dynamic/current-time"
 import { PayPage } from "~components/props/dynamic/pay"
 import { TotalTimeClock } from "~components/props/dynamic/total-time"
 import { Button } from "~components/ui/button"
 import { Separator } from "~components/ui/separator"
-import { Status, type Storage } from "~interfaces/interfaces"
-import { StorageKeys } from "~lib/constants"
+import { type Storage } from "~interfaces/interfaces"
 
 interface ClockedInPageProps extends React.ComponentPropsWithoutRef<"div"> {
   tick: number
@@ -35,18 +33,18 @@ export function ClockedInPage({
         className="mt-6"
         tick={tick}
         isClockedIn={true}
-        clockedInTime={storage?.clockedInTime}
+        clockedInTime={storage?.clockedTime}
       />
       <CurrentTimeClock
         className="mt-6"
         tick={tick}
-        clockedInTime={storage?.clockedInTime}
+        clockedInTime={storage?.clockedTime}
       />
       <TotalTimeClock
         className="mt-6"
         tick={tick}
         isClockedIn={true}
-        clockedInTime={storage?.clockedInTime}
+        clockedInTime={storage?.clockedTime}
         existingTime={storage?.timeWorked}
       />
       <PayPage
@@ -55,7 +53,7 @@ export function ClockedInPage({
         isClockedIn={true}
         k401DeductionEnabled={storage?.preferences?.k401DeductionEnabled}
         k401DeductionPercentage={storage?.preferences?.k401Percentage}
-        clockedInTime={storage?.clockedInTime}
+        clockedInTime={storage?.clockedTime}
         existingTime={storage?.timeWorked}
       />
 

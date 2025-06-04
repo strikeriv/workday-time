@@ -1,7 +1,7 @@
 export interface Storage {
   lastUpdated: number // used to determine if the data is stale
   preferences: Preferences // setting preferences
-  clockedInTime: number // when the user clocked in, in milliseconds
+  clockedTime: number // when the user clocked in, in milliseconds
   timeWorked: TimeWorked // total time worked, in hours and minutes
   status: Status // current status of the user, whether they are clocked in or out
 }
@@ -22,12 +22,13 @@ export enum Status {
 export interface TimeWorked {
   hours: number
   minutes: number
+  seconds: number
 }
 
-export interface ClockedInDuration {
-  clockedInHours: number
-  clockedInMinutes: number
-  clockedInSeconds: number
+export interface ClockedDuration {
+  clockedHours: number
+  clockedMinutes: number
+  clockedSeconds: number
 }
 
 export interface TotalTimeDuration {

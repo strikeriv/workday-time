@@ -1,7 +1,7 @@
 export enum StorageKeys {
   Preferences = "preferences",
   LastUpdated = "lastUpdated",
-  ClockedInTime = "clockedInTime",
+  ClockedTime = "clockedTime",
   TimeWorked = "timeWorked",
   Status = "status"
 }

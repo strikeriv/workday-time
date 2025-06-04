@@ -1,23 +1,23 @@
 import type {
-  ClockedInDuration,
+  ClockedDuration,
   TimeWorked,
   TotalTimeDuration
 } from "~interfaces/interfaces"
 
 export function calculateCurrentClockedInTime(
-  clockedInTime: number
-): ClockedInDuration {
+  clockedTime: number
+): ClockedDuration {
   const currentTime = new Date()
-  const timeDifference = currentTime.getTime() - clockedInTime
+  const timeDifference = currentTime.getTime() - clockedTime
   const hoursWorked = Math.floor(timeDifference / (1000 * 60 * 60))
   const minutesWorked = Math.floor(
     (timeDifference % (1000 * 60 * 60)) / (1000 * 60)
   )
   const secondsWorked = Math.floor((timeDifference % (1000 * 60)) / 1000)
   return {
-    clockedInHours: hoursWorked,
-    clockedInMinutes: minutesWorked,
-    clockedInSeconds: secondsWorked
+    clockedHours: hoursWorked,
+    clockedMinutes: minutesWorked,
+    clockedSeconds: secondsWorked
   }
 }
 
@@ -28,17 +28,24 @@ export function calculateTotalTimeWorked(
 ): TotalTimeDuration {
   let timeWorkedHours = existingTime.hours
   let timeWorkedMinutes = existingTime.minutes
-  let timeWorkedSeconds = 0
+  let timeWorkedSeconds = existingTime.seconds
 
   if (isClockedIn) {
-    const { clockedInHours, clockedInMinutes, clockedInSeconds } =
+    const { clockedHours, clockedMinutes, clockedSeconds } =
       calculateCurrentClockedInTime(clockedInTime)
 
-    timeWorkedHours = existingTime.hours + clockedInHours
-    timeWorkedMinutes = existingTime.minutes + clockedInMinutes
-    timeWorkedSeconds = clockedInSeconds
+    timeWorkedHours += clockedHours
+    timeWorkedMinutes += clockedMinutes
+    timeWorkedSeconds += clockedSeconds
   }
 
+  // normalize seconds
+  if (timeWorkedSeconds >= 60) {
+    timeWorkedMinutes += Math.floor(timeWorkedSeconds / 60)
+    timeWorkedSeconds = timeWorkedSeconds % 60
+  }
+
+  // normalize minutes
   if (timeWorkedMinutes >= 60) {
     timeWorkedHours += Math.floor(timeWorkedMinutes / 60)
     timeWorkedMinutes = timeWorkedMinutes % 60
