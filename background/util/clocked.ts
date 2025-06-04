@@ -59,12 +59,12 @@ async function findAndClickClockButton(
 
 async function findAndClickOkButton(page: Page): Promise<boolean> {
   try {
-    const CommandButtonSelector = "[data-automation-id=wd-CommandButton]"
-    await page.waitForSelector(CommandButtonSelector, {
+    const commandButtonSelector = "[data-automation-id=wd-CommandButton]"
+    await page.waitForSelector(commandButtonSelector, {
       timeout: 5000
     })
 
-    const allLocators = await page.$$(CommandButtonSelector)
+    const allLocators = await page.$$(commandButtonSelector)
     for (const locator of allLocators) {
       const text = await page.evaluate((el) => el.textContent, locator)
       console.log(text, "text")
@@ -83,18 +83,18 @@ async function findAndClickOkButton(page: Page): Promise<boolean> {
 
 async function findAndClickDoneButton(page: Page): Promise<boolean> {
   try {
-    const CommandButtonSelector = "[data-automation-id=wd-CommandButton]"
-    await page.waitForSelector(CommandButtonSelector, {
+    const commandButtonSelector = "[data-automation-id=wd-CommandButton]"
+    await page.waitForSelector(commandButtonSelector, {
       timeout: 5000
     })
 
-    const allLocators = await page.$$(CommandButtonSelector)
+    const allLocators = await page.$$(commandButtonSelector)
     for (const locator of allLocators) {
       const text = await page.evaluate((el) => el.textContent, locator)
       console.log(text, "text")
-      if (text && text.trim().toLowerCase() === "ok") {
+      if (text && text.trim().toLowerCase() === "done") {
         //await locator.click()
-        console.log(`Clicked on ok button successfully.`)
+        console.log(`Clicked on done button successfully.`)
         return true
       }
     }
