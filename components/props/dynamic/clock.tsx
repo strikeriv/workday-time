@@ -17,10 +17,12 @@ export function ClockedStatus({
 
   function updateClockedTime() {
     const clockedInDate = new Date(clockedInTime)
+    const hours = clockedInDate.getHours()
+    const hour12 = hours % 12 === 0 ? 12 : hours % 12
+    const minutes = String(clockedInDate.getMinutes()).padStart(2, "0")
+    const isAM = hours < 12
 
-    setClockedTime(
-      `${clockedInDate.getHours()}:${clockedInDate.getMinutes()} ${clockedInDate.getHours() < 12 ? "AM" : "PM"}`
-    )
+    setClockedTime(`${hour12}:${minutes} ${isAM ? "AM" : "PM"}`)
   }
 
   useEffect(() => {

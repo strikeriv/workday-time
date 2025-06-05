@@ -23,7 +23,7 @@ async function parsePageForClocked(
 
   const isGoodDoneClick = await findAndClickDoneButton(page)
   if (!isGoodDoneClick) {
-    console.error("Failed to click OK button.")
+    console.error("Failed to click Done button.")
     return false
   }
 
@@ -69,7 +69,7 @@ async function findAndClickOkButton(page: Page): Promise<boolean> {
       const text = await page.evaluate((el) => el.textContent, locator)
       console.log(text, "text")
       if (text && text.trim().toLowerCase() === "ok") {
-        //await locator.click()
+        await locator.click()
         console.log(`Clicked on ok button successfully.`)
         return true
       }
@@ -83,17 +83,18 @@ async function findAndClickOkButton(page: Page): Promise<boolean> {
 
 async function findAndClickDoneButton(page: Page): Promise<boolean> {
   try {
-    const commandButtonSelector = "[data-automation-id=wd-CommandButton]"
-    await page.waitForSelector(commandButtonSelector, {
+    const doneButtonSelector =
+      "[data-automation-id=wd-CommandButton_uic_doneButton]"
+    await page.waitForSelector(doneButtonSelector, {
       timeout: 5000
     })
 
-    const allLocators = await page.$$(commandButtonSelector)
+    const allLocators = await page.$$(doneButtonSelector)
     for (const locator of allLocators) {
       const text = await page.evaluate((el) => el.textContent, locator)
       console.log(text, "text")
       if (text && text.trim().toLowerCase() === "done") {
-        //await locator.click()
+        await locator.click()
         console.log(`Clicked on done button successfully.`)
         return true
       }

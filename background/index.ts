@@ -37,6 +37,8 @@ async function changeClockedStatus(isCheckingOut: boolean): Promise<void> {
   }
 
   await parsePageForClocked(page, isCheckingOut)
+
+  await closeTab(tab)
 }
 
 async function closeTab(tab: chrome.tabs.Tab): Promise<void> {

@@ -17,13 +17,14 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
 import jbhunt from "data-base64:~assets/jbhunt.png"
-import { ArrowLeft, Loader2Icon } from "lucide-react"
+import { ArrowLeft, Info, Loader2Icon } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { Link } from "react-router-dom"
 import { z } from "zod"
 
 import { wait } from "~background/util"
+import { CustomTooltip } from "~components/props/tooltip"
 import { Input } from "~components/ui/input"
 import { Switch } from "~components/ui/switch"
 import { type Preferences, type Storage } from "~interfaces/interfaces"
@@ -134,23 +135,41 @@ export function SettingsPage({
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="autoModeEnabled"
-                  render={({ field }) => (
-                    <FormItem className="flex items-center">
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <FormLabel className="!my-0 pl-2 text-muted-foreground">
-                        Auto Mode
-                      </FormLabel>
-                    </FormItem>
-                  )}
-                />
+                <div className="flex items-center space-x-2">
+                  <FormField
+                    control={form.control}
+                    name="autoModeEnabled"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center">
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormLabel className="!my-0 pl-2 text-muted-foreground">
+                          Auto Mode
+                        </FormLabel>
+                      </FormItem>
+                    )}
+                  />
+                  <CustomTooltip icon={<Info width="1em" height="1em" />}>
+                    <p>
+                      Auto mode will automatically clock you in
+                      <br />
+                      and out based on the hours you set above.
+                      <br />
+                    </p>
+
+                    <p className="text-amber-300">
+                      <br />
+                      <strong>
+                        WARNING: This might not work as expected <br />
+                        Use at your own risk.
+                      </strong>
+                    </p>
+                  </CustomTooltip>
+                </div>
 
                 <Separator className="my-6" />
 
@@ -158,24 +177,37 @@ export function SettingsPage({
                   Further settings to customize your experience
                 </p>
 
-                <FormField
-                  control={form.control}
-                  name="k401DeductionEnabled"
-                  render={({ field }) => (
-                    <FormItem className="flex items-center">
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <FormLabel className="!my-0 pl-2 text-muted-foreground">
-                        Include 401k into deduction
-                      </FormLabel>
-                    </FormItem>
-                  )}
-                />
-
+                <div className="flex items-center space-x-2">
+                  <FormField
+                    control={form.control}
+                    name="k401DeductionEnabled"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center">
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormLabel className="!my-0 pl-2 text-muted-foreground">
+                          Include 401k into deduction
+                        </FormLabel>
+                      </FormItem>
+                    )}
+                  />
+                  <CustomTooltip icon={<Info width="1em" height="1em" />}>
+                    <p>
+                      If you have a 401k deduction, you can
+                      <br />
+                      enable this setting
+                      <br />
+                      <br />
+                      Generally, only annual interns will have
+                      <br />a 401k set up
+                      <br />
+                    </p>
+                  </CustomTooltip>
+                </div>
                 <FormField
                   control={form.control}
                   name="k401Percentage"

@@ -13,7 +13,7 @@ async function openWorkdayTab(homeWorkdayURL: string): Promise<BrowserState> {
     currentPage: null
   }
 
-  const newTab = await openNewPageTab(homeWorkdayURL, 0)
+  const newTab = await openNewPageTab(homeWorkdayURL, 2500)
   const newPage = await attachToTab(newTab)
 
   browserState.currentTab = newTab
