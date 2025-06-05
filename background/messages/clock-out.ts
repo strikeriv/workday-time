@@ -7,7 +7,7 @@ const handler: PlasmoMessaging.MessageHandler = async (req, res) => {
   // run the code to grab time here
   console.log("Clocking out...")
 
-  await changeClockedStatus(true)
+  await changeClockedStatus(true, false)
 
   res.send({ message: "Clocked out.", status: Status.Success } as Message)
 }

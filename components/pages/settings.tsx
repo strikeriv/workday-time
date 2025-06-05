@@ -27,7 +27,6 @@ import { wait } from "~background/util"
 import { CustomTooltip } from "~components/props/tooltip"
 import { Input } from "~components/ui/input"
 import { Switch } from "~components/ui/switch"
-import { type Preferences, type Storage } from "~interfaces/interfaces"
 import { StorageKeys } from "~lib/constants"
 import { getStorage } from "~lib/data/storage"
 

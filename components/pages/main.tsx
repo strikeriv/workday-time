@@ -18,7 +18,6 @@ import {
 } from "~background/interfaces/interfaces"
 import { Status } from "~components/props/status"
 import { Status as StatusType, type Storage } from "~interfaces/interfaces"
-import { StorageKeys } from "~lib/constants"
 import { getStorage } from "~lib/data/storage"
 
 import { ClockedInPage } from "./views/clocked-in"
@@ -50,48 +49,34 @@ export function Main({
   }
 
   async function handleClockIn() {
-    const status = storage.status
-
     const resp: Message = await sendToBackground({
       name: "clock-in"
     })
 
-    console.log(resp)
-
-    await chrome.storage.local.set({
-      [StorageKeys.Status]: StatusType.ClockedIn
-    })
-    // Optionally re-fetch storage here
-    setStatus(StatusType.ClockedIn)
+    if (resp.status === MessageStatus.Success) {
+      console.log("Clocked in successfully.")
+      setRefresh((r) => r + 1) // trigger a refresh
+    }
   }
 
   async function handleClockOut() {
-    const status = storage.status
-
     const resp: Message = await sendToBackground({
       name: "clock-out"
     })
 
-    // await chrome.storage.local.set({
-    //   [StorageKeys.Status]: StatusType.ClockedOut
-    // })
-    // Optionally re-fetch storage here
-    setStatus(StatusType.ClockedOut)
+    if (resp.status === MessageStatus.Success) {
+      console.log("Clocked out successfully.")
+      setRefresh((r) => r + 1) // trigger a refresh
+    }
   }
 
-  async function handleDesyncedData() {
+  async function handleSyncingData() {
     const resp: Message = await sendToBackground({ name: "sync-data" })
     console.log(resp)
     if (resp.status === MessageStatus.Success) {
       console.log("Data synced successfully.")
       setRefresh((r) => r + 1) // trigger a refresh
     }
-
-    // await chrome.storage.local.set({
-    //   [StorageKeys.Status]: StatusType.ClockedOut
-    // })
-    // Optionally re-fetch storage here
-    // setStatus(StatusType.ClockedOut)
   }
 
   useEffect(() => {
@@ -121,7 +106,7 @@ export function Main({
             if (status === StatusType.Unknown) {
               content = (
                 <DesyncedPage
-                  onSyncData={handleDesyncedData}
+                  onSyncData={handleSyncingData}
                   className="flex h-full flex-1 flex-col"
                 />
               )

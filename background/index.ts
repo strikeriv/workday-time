@@ -25,26 +25,38 @@ async function grabTimeFromWorkday(): Promise<void> {
   await closeTab(tab)
 }
 
-async function changeClockedStatus(isCheckingOut: boolean): Promise<void> {
+async function changeClockedStatus(
+  isCheckingOut: boolean,
+  manual: boolean
+): Promise<void> {
   const browserState = await openWorkdayTab(homeWorkdayURL)
   const { currentTab: tab, currentPage: page } = browserState
 
-  const didNavigate = await evaluatePageNavigation(browserState)
-
-  if (!didNavigate) {
-    console.error("Failed to navigate to the Workday time page.")
-    return await closeTab(tab)
+  // if manual, already on the time page
+  // no need to navigate
+  if (!manual) {
+    const didNavigate = await evaluatePageNavigation(browserState)
+    if (!didNavigate) {
+      console.error("Failed to navigate to the Workday time page.")
+      return await closeTab(tab)
+    }
   }
 
-  await parsePageForClocked(page, isCheckingOut)
+  await parsePageForClocked(page, isCheckingOut, manual)
 
-  await closeTab(tab)
+  // only close the tab if this was the extension clocking in or out
+  if (!manual) {
+    await closeTab(tab)
+  }
 }
 
 async function closeTab(tab: chrome.tabs.Tab): Promise<void> {
   console.log("Closing tab...")
-  await chrome.tabs.remove(tab.id)
-  console.log("Closed tab.")
+  try {
+    await chrome.tabs.remove(tab.id)
+  } catch {
+    console.log("Failed to close tab.")
+  }
 }
 
 registerWebRequestListener()

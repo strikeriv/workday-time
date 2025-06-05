@@ -6,6 +6,11 @@ export enum StorageKeys {
   Status = "status"
 }
 
+export const enum EventIds {
+  ClockOut = "979",
+  ClockIn = "976"
+}
+
 export enum DeductionPercentages {
   SocialSecurity = 0.062, // 6.2%
   Medicare = 0.0145, // 1.45%

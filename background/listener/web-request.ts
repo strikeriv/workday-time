@@ -1,14 +1,8 @@
 import { changeClockedStatus } from "~background"
-import { Status } from "~interfaces/interfaces"
-import { StorageKeys } from "~lib/constants"
-
-const enum EventIds {
-  ClockOut = 979,
-  ClockIn = 976
-}
+import { EventIds } from "~lib/constants"
 
 export function registerWebRequestListener() {
-  console.log("Registering web request listener...")
+  console.log("Registering web request listener.")
   chrome.webRequest.onBeforeRequest.addListener(
     (details) => {
       if (
@@ -21,18 +15,24 @@ export function registerWebRequestListener() {
         console.log(formData, "form data for request")
         console.log(details, "url details for request")
         if (!eventId) {
-          console.warn("No eventId found in request body.")
           return
         }
 
-        if (eventId === EventIds.ClockOut.toString()) {
-          console.log("Clock out event detected.")
-          changeClockedStatus(true).then(() => {
+        if (
+          eventId === EventIds.ClockOut.toString() ||
+          eventId === EventIds.ClockIn.toString()
+        ) {
+          const isCheckingOut = eventId === EventIds.ClockOut.toString()
+          console.log(
+            isCheckingOut
+              ? "Clock out event detected."
+              : "Clock in event detected."
+          )
+
+          // should be on the time page after clocking in/out
+          changeClockedStatus(isCheckingOut, true).then(() => {
             console.log("insane if this works first try")
           })
-        } else if (eventId === EventIds.ClockIn.toString()) {
-          console.log("Clock in event detected.")
-          // Handle clock in logic here
         } else {
           console.warn("Unknown eventId:", eventId)
         }
@@ -41,12 +41,4 @@ export function registerWebRequestListener() {
     { urls: ["https://wd501.myworkday.com/jbhunt/*"] },
     ["requestBody"]
   )
-}
-
-function updateStorageOnClockOut() {
-  chrome.storage.local.set({
-    [StorageKeys.ClockedTime]: null,
-    [StorageKeys.Status]: Status.ClockedOut
-  })
-  console.log("Clocked out and storage updated.")
 }

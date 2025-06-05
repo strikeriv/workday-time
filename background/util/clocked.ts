@@ -1,27 +1,32 @@
 import { Page } from "puppeteer-core/lib/esm/puppeteer/puppeteer-core-browser.js"
 
+import type { CandlestickChart } from "~node_modules/lucide-react/dist/lucide-react"
+
 async function parsePageForClocked(
   page: Page,
-  isCheckingOut: boolean
+  isCheckingOut: boolean,
+  manual: boolean
 ): Promise<boolean> {
-  const isGoodClockClick = await findAndClickClockButton(page, isCheckingOut)
-  if (!isGoodClockClick) {
-    console.error("Failed to click Check in / out button.")
-    return false
+  if (!manual) {
+    const isGoodClockClick = await findAndClickClockButton(page, isCheckingOut)
+    if (!isGoodClockClick) {
+      console.error("Failed to click Check in / out button.")
+      return false
+    }
+
+    // wait for check in / out page to load
+    await page.waitForNetworkIdle({
+      timeout: 10000
+    })
+
+    const isGoodOkClick = await findAndClickOkButton(page)
+    if (!isGoodOkClick) {
+      console.error("Failed to click OK button.")
+      return false
+    }
   }
 
-  // wait for check in / out page to load
-  await page.waitForNetworkIdle({
-    timeout: 10000
-  })
-
-  const isGoodOkClick = await findAndClickOkButton(page)
-  if (!isGoodOkClick) {
-    console.error("Failed to click OK button.")
-    return false
-  }
-
-  const isGoodDoneClick = await findAndClickDoneButton(page)
+  const isGoodDoneClick = await findAndClickDoneButton(page, manual)
   if (!isGoodDoneClick) {
     console.error("Failed to click Done button.")
     return false
@@ -81,7 +86,13 @@ async function findAndClickOkButton(page: Page): Promise<boolean> {
   }
 }
 
-async function findAndClickDoneButton(page: Page): Promise<boolean> {
+async function findAndClickDoneButton(
+  page: Page,
+  manual: boolean
+): Promise<boolean> {
+  // with manual, it's possible the user has already clicked the button
+  // still, we want to check if the button is there and click it
+
   try {
     const doneButtonSelector =
       "[data-automation-id=wd-CommandButton_uic_doneButton]"
@@ -102,6 +113,10 @@ async function findAndClickDoneButton(page: Page): Promise<boolean> {
 
     return false // no button found
   } catch {
+    if (manual) {
+      return false
+    }
+
     return false
   }
 }
