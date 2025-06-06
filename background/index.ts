@@ -1,3 +1,4 @@
+import { registerAlarmListener } from "./alarms"
 import { registerWebRequestListener } from "./listener/web-request"
 import { parsePageForClocked } from "./util/clocked"
 import { openWorkdayTab } from "./util/pages"
@@ -42,12 +43,22 @@ async function changeClockedStatus(
     }
   }
 
-  await parsePageForClocked(page, isCheckingOut, manual)
-
-  // only close the tab if this was the extension clocking in or out
-  if (!manual) {
-    await closeTab(tab)
+  const didChangeStatus = await parsePageForClocked(page, isCheckingOut, manual)
+  if (!didChangeStatus) {
+    console.error(
+      `Failed to ${
+        isCheckingOut ? "clock out" : "clock in"
+      } on the Workday time page.`
+    )
+    return await closeTab(tab)
   }
+
+  const didParse = await parsePageForTime(page)
+  if (!didParse) {
+    console.error("Failed to parse the time page.")
+  }
+
+  // never close the tab. listener will handle it
 }
 
 async function closeTab(tab: chrome.tabs.Tab): Promise<void> {
@@ -60,5 +71,6 @@ async function closeTab(tab: chrome.tabs.Tab): Promise<void> {
 }
 
 registerWebRequestListener()
+registerAlarmListener()
 
 export { changeClockedStatus, grabTimeFromWorkday }

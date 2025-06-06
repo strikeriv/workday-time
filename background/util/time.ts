@@ -80,20 +80,25 @@ async function readClockTime(page: Page): Promise<boolean> {
     const clockTimeString = /\d:\d{2} (P|AM)/gm.exec(
       promptButtonTexts.join("|")
     )
+    console.log(clockTimeString, "clockTimeString")
     if (!clockTimeString?.[0]) return
 
     const splitTime = clockTimeString[0].split(" ").map((val) => val.trim())
     const duration = splitTime[0].split(":")
     const period = splitTime[1]
-    const day = period === "AM" ? 1 : 2
+    const day = period === "AM" ? 0 : 12
+
+    console.log(splitTime, duration, period, day, "hmm")
 
     const clockedInDate = new Date()
-    clockedInDate.setHours(parseInt(duration[0]) * day)
+    clockedInDate.setHours(parseInt(duration[0]) + day)
     clockedInDate.setMinutes(parseInt(duration[1]))
     clockedInDate.setMilliseconds(0)
     clockedInDate.setSeconds(0)
 
     evaluateStatus(clockTimeString.input.includes("In"))
+
+    console.log(clockedInDate, "clockedInDate")
 
     await chrome.storage.local.set({
       [StorageKeys.ClockedTime]: clockedInDate.getTime()

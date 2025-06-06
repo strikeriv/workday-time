@@ -16,7 +16,10 @@ async function evaluatePageNavigation(
 
   // check if the current page is already the time page
   const currentTitle = await currentPage.title()
-  if (currentTitle.includes("Time - Workday")) {
+  if (
+    currentTitle.includes("Time - Workday") ||
+    currentTitle.includes("Check")
+  ) {
     console.log("Already on the Workday time page, no need to navigate.")
     return true
   }

@@ -15,7 +15,12 @@ async function openWorkdayTab(homeWorkdayURL: string): Promise<BrowserState> {
   }
 
   // only open a new tab if there is no existing Workday tab
-  let workdayTab = await grabTabByTitle(["Home - Workday", "Time - Workday"])
+  let workdayTab = await grabTabByTitle([
+    "Home - Workday",
+    "Time - Workday",
+    "Check In - Workday",
+    "Check Out - Workday"
+  ])
   if (!workdayTab) {
     workdayTab = await openNewPageTab(homeWorkdayURL, 2500)
   }
@@ -43,7 +48,7 @@ async function openNewPageTab(
 async function grabTabByTitle(
   titles: string[]
 ): Promise<chrome.tabs.Tab | null> {
-  const tabs = await chrome.tabs.query({})
+  const tabs = await chrome.tabs.query({ currentWindow: true, active: true })
   return (
     tabs.find((tab) => titles.some((title) => tab.title?.includes(title))) ??
     null

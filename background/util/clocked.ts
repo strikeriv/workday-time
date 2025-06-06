@@ -1,7 +1,5 @@
 import { Page } from "puppeteer-core/lib/esm/puppeteer/puppeteer-core-browser.js"
 
-import type { CandlestickChart } from "~node_modules/lucide-react/dist/lucide-react"
-
 async function parsePageForClocked(
   page: Page,
   isCheckingOut: boolean,

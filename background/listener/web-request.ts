@@ -30,8 +30,9 @@ export function registerWebRequestListener() {
           )
 
           // should be on the time page after clocking in/out
+          console.log("before changing status in listener")
           changeClockedStatus(isCheckingOut, true).then(() => {
-            console.log("insane if this works first try")
+            console.log("done changing clocked status in listener")
           })
         } else {
           console.warn("Unknown eventId:", eventId)

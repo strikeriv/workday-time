@@ -1,9 +1,9 @@
 {
   "name": "workday-time",
-  "displayName": "Workday time",
-  "version": "0.0.1",
-  "description": "Plasmo extension using shadcn example",
-  "author": "Plasmo Corp. <foss@plasmo.com>",
+  "displayName": "Workday Time",
+  "version": "1.0.0",
+  "description": "An extension to help you track your time in Workday.",
+  "author": "Matthew Craddock. <matthew.j.craddock@jbhunt.com>",
   "scripts": {
     "dev": "plasmo dev",
     "clean": "plasmo clean",
@@ -58,6 +58,7 @@
       "scripting",
       "debugger",
       "storage",
+      "alarms",
       "tabs"
     ]
   }

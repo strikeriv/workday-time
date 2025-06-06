@@ -58,7 +58,17 @@ export function SettingsPage({
     setSaving(true)
 
     await chrome.storage.local.set({ [StorageKeys.Preferences]: values })
-    await wait(500) // chrome storage is basically instant, so this is just to show the loading state
+    //await wait(500) // chrome storage is basically instant, so this is just to show the loading state
+    console.log(values, "Saving settings...")
+    if (values.autoModeEnabled) {
+      await chrome.alarms.create("autoModeCheck", {
+        periodInMinutes: 0.5, // every 30 seconds
+        when: 1000
+      })
+    } else {
+      console.log("Auto mode disabled, clearing alarm.")
+      chrome.alarms.clear("autoModeCheck")
+    }
 
     setSaving(false)
   }
@@ -108,7 +118,7 @@ export function SettingsPage({
                           type="number"
                           min={0}
                           max={10}
-                          step={1}
+                          step={0.25}
                           {...field}
                           value={field.value ?? ""}
                           onChange={(e) =>

@@ -1,4 +1,5 @@
 import { ExternalLink, Settings } from "lucide-react"
+import { useEffect } from "react"
 import { Link } from "react-router-dom"
 
 import { ClockedStatus } from "~components/props/dynamic/clock"
@@ -22,6 +23,16 @@ export function ClockedInPage({
   storage,
   ...props
 }: Readonly<ClockedInPageProps>) {
+  useEffect(() => {
+    if (!storage?.preferences?.autoModeEnabled) return
+
+    const interval = setInterval(() => {
+      console.log("auto mode tick")
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [storage?.preferences?.autoModeEnabled])
+
   return (
     <div className={className} {...props}>
       <p className="text-sm text-muted-foreground">
