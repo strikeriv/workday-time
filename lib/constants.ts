@@ -1,3 +1,5 @@
+export const AutoModeKey = "autoModeCheck"
+
 export enum StorageKeys {
   Preferences = "preferences",
   LastUpdated = "lastUpdated",

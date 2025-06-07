@@ -18,6 +18,7 @@ import {
 } from "~background/interfaces/interfaces"
 import { StatusBar } from "~components/props/status"
 import { Status, type Storage } from "~interfaces/interfaces"
+import { evaluateAlarmStatus } from "~lib/data/alarm"
 import { getStorage } from "~lib/data/storage"
 
 import { ClockedInPage } from "./views/clocked-in"
@@ -39,11 +40,13 @@ export function Main({
     return () => clearInterval(interval)
   }, [])
 
-  async function updateStorageValues(): Promise<void> {
+  async function updateStorageValues(): Promise<Storage> {
     const storage = await getStorage()
 
     setStorage(storage)
     setStatus(storage.status)
+
+    return storage
   }
 
   async function handleClockIn() {
@@ -78,7 +81,12 @@ export function Main({
   }
 
   useEffect(() => {
-    updateStorageValues()
+    async function onRefresh() {
+      const instantStorage = await updateStorageValues()
+      await evaluateAlarmStatus(instantStorage.preferences.autoModeEnabled)
+    }
+
+    onRefresh()
   }, [refresh])
 
   return (
@@ -87,9 +95,9 @@ export function Main({
         <CardHeader>
           <CardTitle>
             <div className="flex w-full items-center">
-              <img src={jbhunt} className="w-32" alt="J.B. HUNT Logo"></img>
+              <img src={jbhunt} className="w-32" alt="J.B. Hunt Logo"></img>
               <h1 className="pl-2 text-xl">Workday Time</h1>
-              <StatusBar className="float-right ml-auto" storage={storage}/>
+              <StatusBar className="float-right ml-auto" storage={storage} />
             </div>
           </CardTitle>
           <CardDescription>

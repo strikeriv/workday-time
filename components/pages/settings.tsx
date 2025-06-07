@@ -27,10 +27,12 @@ import { wait } from "~background/util"
 import { CustomTooltip } from "~components/props/tooltip"
 import { Input } from "~components/ui/input"
 import { Switch } from "~components/ui/switch"
+import { type Storage } from "~interfaces/interfaces"
 import { StorageKeys } from "~lib/constants"
+import { evaluateAlarmStatus } from "~lib/data/alarm"
 import { getStorage } from "~lib/data/storage"
 
-import { Status } from "../props/status"
+import { StatusBar } from "../props/status"
 
 const settingsSchema = z.object({
   hoursToWork: z.number().min(0).max(10),
@@ -45,6 +47,8 @@ export function SettingsPage({
 }: Readonly<React.ComponentPropsWithoutRef<"div">>) {
   const [saving, setSaving] = useState<boolean>(false)
 
+  const [storage, setStorage] = useState<Storage>(null)
+
   const form = useForm({
     defaultValues: {
       hoursToWork: 8,
@@ -58,17 +62,9 @@ export function SettingsPage({
     setSaving(true)
 
     await chrome.storage.local.set({ [StorageKeys.Preferences]: values })
-    //await wait(500) // chrome storage is basically instant, so this is just to show the loading state
-    console.log(values, "Saving settings...")
-    if (values.autoModeEnabled) {
-      await chrome.alarms.create("autoModeCheck", {
-        periodInMinutes: 0.5, // every 30 seconds
-        when: 1000
-      })
-    } else {
-      console.log("Auto mode disabled, clearing alarm.")
-      chrome.alarms.clear("autoModeCheck")
-    }
+    await evaluateAlarmStatus(values.autoModeEnabled)
+
+    await wait(500) // instant save, purely for UI feedback
 
     setSaving(false)
   }
@@ -76,6 +72,7 @@ export function SettingsPage({
   async function updateStorageValues(): Promise<void> {
     const storage = await getStorage()
 
+    setStorage(storage)
     form.reset(storage.preferences)
   }
 
@@ -89,9 +86,9 @@ export function SettingsPage({
         <CardHeader>
           <CardTitle>
             <div className="flex w-full items-center">
-              <img src={jbhunt} className="w-32" alt="J.B. HUNT Logo"></img>
+              <img src={jbhunt} className="w-32" alt="J.B. Hunt Logo"></img>
               <h1 className="pl-2 text-xl">Workday Time</h1>
-              <Status className="float-right ml-auto" />
+              <StatusBar className="float-right ml-auto" storage={storage} />
             </div>
           </CardTitle>
           <CardDescription>

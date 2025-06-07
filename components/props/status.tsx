@@ -8,18 +8,16 @@ interface Status extends React.ComponentPropsWithoutRef<"div"> {
   storage: Storage
 }
 
-export function StatusBar({
-  className,
-  storage,
-  ...props
-}: Readonly<Status>) {
+const statusColors = {
+  green: "text-green-600",
+  gray: "text-gray-400"
+}
+
+export function StatusBar({ className, storage, ...props }: Readonly<Status>) {
   const [status, setStatus] = useState("Offline")
   const [statusColor, setStatusColor] = useState("gray")
 
-  const statusColorClass = {
-    green: "text-green-600",
-    gray: "text-gray-400"
-  }[statusColor]
+  const color = statusColors[statusColor] ?? statusColors.gray
 
   async function evaluateStatus() {
     const clockedInTime = storage.clockedTime
@@ -40,6 +38,8 @@ export function StatusBar({
   }
 
   useEffect(() => {
+    if (storage == null) return
+
     evaluateStatus()
   }, [storage])
 
@@ -52,7 +52,7 @@ export function StatusBar({
           width="1em"
           height="1em"
         />
-        <p className={cn("pl-2", statusColorClass)}>{status}</p>
+        <p className={cn("pl-2", color)}>{status}</p>
       </div>
     </div>
   )
