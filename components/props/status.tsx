@@ -1,17 +1,18 @@
 import { Circle } from "lucide-react"
-import { forwardRef, useEffect, useImperativeHandle, useState } from "react"
+import { useEffect, useState } from "react"
 
-import { StorageKeys } from "~lib/constants"
+import { type Storage } from "~interfaces/interfaces"
 import { cn } from "~lib/utils"
 
-export type StatusHandle = {
-  evaluateStatus: () => void
+interface Status extends React.ComponentPropsWithoutRef<"div"> {
+  storage: Storage
 }
 
-export const Status = forwardRef<
-  StatusHandle,
-  Readonly<React.ComponentPropsWithoutRef<"div">>
->(({ className, ...props }, ref) => {
+export function StatusBar({
+  className,
+  storage,
+  ...props
+}: Readonly<Status>) {
   const [status, setStatus] = useState("Offline")
   const [statusColor, setStatusColor] = useState("gray")
 
@@ -20,20 +21,14 @@ export const Status = forwardRef<
     gray: "text-gray-400"
   }[statusColor]
 
-  const clockedInKey = StorageKeys.ClockedTime
-  const timeWorkedKey = StorageKeys.TimeWorked
-
   async function evaluateStatus() {
-    const savedValues = await chrome.storage.local.get([
-      clockedInKey,
-      timeWorkedKey
-    ])
-    const clockedInTime = savedValues[clockedInKey]
-    const timeWorked = savedValues[timeWorkedKey]
+    const clockedInTime = storage.clockedTime
+    const timeWorked = storage.timeWorked
 
     if (clockedInTime && timeWorked) {
       const clockedInDate = new Date(clockedInTime)
       const currentTime = new Date()
+
       if (currentTime.getTime() > clockedInDate.getTime()) {
         setStatus("Online")
         setStatusColor("green")
@@ -44,15 +39,9 @@ export const Status = forwardRef<
     }
   }
 
-  // expose evaluateStatus to parent
-  useImperativeHandle(ref, () => ({
-    evaluateStatus
-  }))
-
-  // run once on mount
   useEffect(() => {
     evaluateStatus()
-  }, [])
+  }, [storage])
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -67,4 +56,4 @@ export const Status = forwardRef<
       </div>
     </div>
   )
-})
+}

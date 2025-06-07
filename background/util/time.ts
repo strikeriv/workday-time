@@ -48,11 +48,11 @@ async function readWeekTime(page: Page): Promise<boolean> {
     const matchedValues = /\d+(\.\d+)?/gm.exec(timePageButtonsText.join("|"))
     const thisWeekTime = matchedValues?.[0]?.split(/(?=\.)/) || []
 
-    const rawMinutes = parseFloat(matchedValues?.[0] || "0")
+    const rawMinutes = parseFloat(thisWeekTime[1])
 
-    const hours = parseInt(thisWeekTime[0] || "0")
-    const minutes = Math.floor(rawMinutes)
-    const seconds = Math.round((rawMinutes - minutes) * 60)
+    const hours = parseInt(thisWeekTime[0])
+    const minutes = Math.floor(rawMinutes * 60)
+    const seconds = Math.round((rawMinutes * 60 - minutes) * 60)
 
     await chrome.storage.local.set({
       [StorageKeys.TimeWorked]: {

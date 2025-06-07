@@ -16,15 +16,13 @@ import {
   Status as MessageStatus,
   type Message
 } from "~background/interfaces/interfaces"
-import { Status } from "~components/props/status"
-import { Status as StatusType, type Storage } from "~interfaces/interfaces"
+import { StatusBar } from "~components/props/status"
+import { Status, type Storage } from "~interfaces/interfaces"
 import { getStorage } from "~lib/data/storage"
 
 import { ClockedInPage } from "./views/clocked-in"
 import { ClockedOutPage } from "./views/clocked-out"
 import { DesyncedPage } from "./views/desynced"
-
-const workdayURL = "https://wd501.myworkday.com/jbhunt/d/home.htmld"
 
 export function Main({
   className,
@@ -33,7 +31,7 @@ export function Main({
   const [tick, setTick] = useState(0)
   const [refresh, setRefresh] = useState(0)
 
-  const [status, setStatus] = useState<StatusType>(null)
+  const [status, setStatus] = useState<Status>(null)
   const [storage, setStorage] = useState<Storage>(null)
 
   useEffect(() => {
@@ -91,7 +89,7 @@ export function Main({
             <div className="flex w-full items-center">
               <img src={jbhunt} className="w-32" alt="J.B. HUNT Logo"></img>
               <h1 className="pl-2 text-xl">Workday Time</h1>
-              <Status className="float-right ml-auto" />
+              <StatusBar className="float-right ml-auto" storage={storage}/>
             </div>
           </CardTitle>
           <CardDescription>
@@ -103,14 +101,14 @@ export function Main({
 
           {(() => {
             let content
-            if (status === StatusType.Unknown) {
+            if (status === Status.Unknown) {
               content = (
                 <DesyncedPage
                   onSyncData={handleSyncingData}
-                  className="flex h-full flex-1 flex-col"
+                  className="flex h-full flex-1 flex-col justify-center"
                 />
               )
-            } else if (status === StatusType.ClockedIn) {
+            } else if (status === Status.ClockedIn) {
               content = (
                 <ClockedInPage
                   onClockOut={handleClockOut}
