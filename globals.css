@@ -9,6 +9,10 @@ body {
   padding: 0;
 }
 
+.jbhunt-blue {
+  background-color: rgb(0, 93, 186);
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

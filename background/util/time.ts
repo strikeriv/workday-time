@@ -48,9 +48,9 @@ async function readWeekTime(page: Page): Promise<boolean> {
     const matchedValues = /\d+(\.\d+)?/gm.exec(timePageButtonsText.join("|"))
     const thisWeekTime = matchedValues?.[0]?.split(/(?=\.)/) || []
 
-    const rawMinutes = parseFloat(thisWeekTime[1])
-
     const hours = parseInt(thisWeekTime[0])
+    const rawMinutes = parseFloat(thisWeekTime[1] ?? "0")
+
     const minutes = Math.floor(rawMinutes * 60)
     const seconds = Math.round((rawMinutes * 60 - minutes) * 60)
 
@@ -80,15 +80,12 @@ async function readClockTime(page: Page): Promise<boolean> {
     const clockTimeString = /\d:\d{2} (P|AM)/gm.exec(
       promptButtonTexts.join("|")
     )
-    console.log(clockTimeString, "clockTimeString")
     if (!clockTimeString?.[0]) return
 
     const splitTime = clockTimeString[0].split(" ").map((val) => val.trim())
     const duration = splitTime[0].split(":")
     const period = splitTime[1]
     const day = period === "AM" ? 0 : 12
-
-    console.log(splitTime, duration, period, day, "hmm")
 
     const clockedInDate = new Date()
     clockedInDate.setHours(parseInt(duration[0]) + day)
@@ -97,8 +94,6 @@ async function readClockTime(page: Page): Promise<boolean> {
     clockedInDate.setSeconds(0)
 
     evaluateStatus(clockTimeString.input.includes("In"))
-
-    console.log(clockedInDate, "clockedInDate")
 
     await chrome.storage.local.set({
       [StorageKeys.ClockedTime]: clockedInDate.getTime()

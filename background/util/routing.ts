@@ -43,7 +43,7 @@ async function navigateToWorkdayTimePage(currentPage: Page): Promise<boolean> {
     await findAndClickOnTimeButtom(currentPage)
 
     await currentPage.waitForNavigation({
-      waitUntil: "networkidle0",
+      waitUntil: "networkidle2",
       timeout: 10000
     })
 

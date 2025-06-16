@@ -1,10 +1,13 @@
 import { changeClockedStatus } from "~background"
 import { EventIds } from "~lib/constants"
+import { updateValuesOnClockedStatusChange } from "~lib/data/alarm"
 
 export function registerWebRequestListener() {
   console.log("Registering web request listener.")
   chrome.webRequest.onBeforeRequest.addListener(
     (details) => {
+      console.log(details, "details for request")
+      // TODO: find a better way to handle this
       if (
         details.method === "POST" &&
         details.url.includes("flowController.htmld")
@@ -22,17 +25,16 @@ export function registerWebRequestListener() {
           eventId === EventIds.ClockOut.toString() ||
           eventId === EventIds.ClockIn.toString()
         ) {
-          const isCheckingOut = eventId === EventIds.ClockOut.toString()
+          const isCheckingIn = eventId === EventIds.ClockIn.toString()
           console.log(
-            isCheckingOut
-              ? "Clock out event detected."
-              : "Clock in event detected."
+            isCheckingIn
+              ? "Clock in event detected."
+              : "Clock out event detected."
           )
 
           // should be on the time page after clocking in/out
-          console.log("before changing status in listener")
-          changeClockedStatus(isCheckingOut, true).then(() => {
-            console.log("done changing clocked status in listener")
+          updateValuesOnClockedStatusChange(isCheckingIn).then(() => {
+            console.log("fnished!")
           })
         } else {
           console.warn("Unknown eventId:", eventId)
@@ -40,6 +42,6 @@ export function registerWebRequestListener() {
       }
     },
     { urls: ["https://wd501.myworkday.com/jbhunt/*"] },
-    ["requestBody"]
+    ["requestBody", "extraHeaders"]
   )
 }

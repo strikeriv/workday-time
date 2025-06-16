@@ -15,7 +15,7 @@ export function DesyncedPage({
 }: Readonly<ClockedOutPageProps>) {
   return (
     <div className={className} {...props}>
-      <div className="flex-1 flex flex-col justify-center">
+      <div className="flex flex-1 flex-col justify-center">
         <h2 className="text-base font-bold">No Data Available</h2>
         <p className="text-sm text-muted-foreground">
           Click the button in the footer below to automatically load your data
@@ -26,13 +26,16 @@ export function DesyncedPage({
       <Separator className="my-6" />
 
       <div className="justifty-between">
-        <Button type="button" className="float-left" onClick={onSyncData}>
+        <Button
+          type="button"
+          className="jbhunt-blue float-left"
+          onClick={onSyncData}>
           <ExternalLink />
           Sync Data
         </Button>
 
         <Link to="/settings">
-          <Button type="button" className="float-right">
+          <Button type="button" className="jbhunt-blue float-right">
             <Settings />
             Settings
           </Button>

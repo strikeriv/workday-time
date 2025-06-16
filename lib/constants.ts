@@ -10,7 +10,7 @@ export enum StorageKeys {
 
 export const enum EventIds {
   ClockOut = "979",
-  ClockIn = "976"
+  ClockIn = "975"
 }
 
 export enum DeductionPercentages {
