@@ -1,5 +1,5 @@
 import { changeClockedStatus } from "~background"
-import { Status } from "~interfaces/interfaces"
+import { Status } from "~lib/constants"
 import { getStorage } from "~lib/data/storage"
 
 function registerAlarmListener() {

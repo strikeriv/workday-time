@@ -12,12 +12,10 @@ import { useEffect, useState } from "react"
 
 import { sendToBackground } from "@plasmohq/messaging"
 
-import {
-  Status as MessageStatus,
-  type Message
-} from "~background/interfaces/interfaces"
+import { MessageStatus, type Message } from "~background/interfaces/interfaces"
 import { StatusBar } from "~components/props/status"
-import { Status, type Storage } from "~interfaces/interfaces"
+import { type Storage } from "~interfaces/interfaces"
+import { Status } from "~lib/constants"
 import { evaluateAlarmStatus } from "~lib/data/alarm"
 import { getStorage } from "~lib/data/storage"
 
@@ -109,7 +107,7 @@ export function Main({
 
           {(() => {
             let content
-            if (status === Status.Unknown) {
+            if (status === Status.Desynced) {
               content = (
                 <DesyncedPage
                   onSyncData={handleSyncingData}

@@ -7,10 +7,10 @@ export interface BrowserState {
 
 export interface Message {
   message: string
-  status: Status
+  status: MessageStatus
 }
 
-export enum Status {
+export enum MessageStatus {
   Success = "success",
   Error = "error"
 }

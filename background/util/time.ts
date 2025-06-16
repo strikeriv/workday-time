@@ -1,7 +1,6 @@
 import { Page } from "puppeteer-core/lib/esm/puppeteer/puppeteer-core-browser.js"
 
-import { Status } from "~interfaces/interfaces"
-import { StorageKeys } from "~lib/constants"
+import { Status, StorageKeys } from "~lib/constants"
 
 async function parsePageForTime(page: Page): Promise<boolean> {
   try {

@@ -1,3 +1,5 @@
+import type { Status } from "~lib/constants"
+
 export interface Storage {
   lastUpdated: number // used to determine if the data is stale
   preferences: Preferences // setting preferences
@@ -11,12 +13,6 @@ export interface Preferences {
   autoModeEnabled: boolean
   k401DeductionEnabled: boolean
   k401Percentage: number
-}
-
-export enum Status {
-  ClockedIn = "ClockedIn",
-  ClockedOut = "ClockedOut",
-  Unknown = "Unknown"
 }
 
 export interface TimeWorked {

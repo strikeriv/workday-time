@@ -1,5 +1,4 @@
-import { Status } from "~interfaces/interfaces"
-import { AutoModeKey, StorageKeys } from "~lib/constants"
+import { AutoModeKey, Status, StorageKeys } from "~lib/constants"
 
 import { getStorage } from "./storage"
 import { calculateCurrentClockedInTime, calculateTotalTimeWorked } from "./time"
@@ -20,12 +19,22 @@ export async function evaluateAlarmStatus(autoModeEnabled: boolean) {
   }
 }
 
-export async function updateValuesOnClockedStatusChange(
-  isClockingIn: boolean
-): Promise<void> {
+export async function updateValuesOnClockedStatusChange(): Promise<void> {
   const { clockedTime, timeWorked, status } = await getStorage()
 
   // update the values in storage when they clock in or out
+  if (status === Status.Desynced) {
+    console.warn("Status is desynced. Ignoring clock in/out request.")
+    return
+  }
+
+  const isClockingIn = status === Status.ClockedIn
+  if (isClockingIn) {
+    console.log("Clocking in...")
+  } else {
+    console.log("Clocking out...")
+  }
+
   const currentClockedInTime = calculateCurrentClockedInTime(clockedTime)
   const totalTimeWorked = calculateTotalTimeWorked(
     clockedTime,

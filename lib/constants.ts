@@ -8,9 +8,10 @@ export enum StorageKeys {
   Status = "status"
 }
 
-export const enum EventIds {
-  ClockOut = "979",
-  ClockIn = "975"
+export enum Status {
+  ClockedIn = "ClockedIn",
+  ClockedOut = "ClockedOut",
+  Desynced = "Desynced"
 }
 
 export enum DeductionPercentages {

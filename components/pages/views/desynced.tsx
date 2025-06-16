@@ -26,16 +26,13 @@ export function DesyncedPage({
       <Separator className="my-6" />
 
       <div className="justifty-between">
-        <Button
-          type="button"
-          className="jbhunt-blue float-left"
-          onClick={onSyncData}>
+        <Button type="button" className="float-left" onClick={onSyncData}>
           <ExternalLink />
           Sync Data
         </Button>
 
         <Link to="/settings">
-          <Button type="button" className="jbhunt-blue float-right">
+          <Button type="button" className="float-right">
             <Settings />
             Settings
           </Button>

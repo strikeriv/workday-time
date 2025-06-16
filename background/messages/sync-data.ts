@@ -1,7 +1,7 @@
 import type { PlasmoMessaging } from "@plasmohq/messaging"
 
 import { grabTimeFromWorkday } from "~background"
-import { Status, type Message } from "~background/interfaces/interfaces"
+import { MessageStatus, type Message } from "~background/interfaces/interfaces"
 
 const handler: PlasmoMessaging.MessageHandler = async (req, res) => {
   console.log("Started syncing data with Workday...")
@@ -9,7 +9,7 @@ const handler: PlasmoMessaging.MessageHandler = async (req, res) => {
 
   res.send({
     message: "Successfully synced time.",
-    status: Status.Success
+    status: MessageStatus.Success
   } as Message)
 }
 

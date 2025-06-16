@@ -58,16 +58,13 @@ export function ClockedOutPage({
       <Separator className="my-6" />
 
       <div className="justifty-between">
-        <Button
-          type="button"
-          className="jbhunt-blue float-left"
-          onClick={onClockIn}>
+        <Button type="button" className="float-left" onClick={onClockIn}>
           <ExternalLink />
           Clock in
         </Button>
 
         <Link to="/settings">
-          <Button type="button" className="jbhunt-blue float-right">
+          <Button type="button" className="float-right">
             <Settings />
             Settings
           </Button>
