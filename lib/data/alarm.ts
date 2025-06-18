@@ -42,14 +42,14 @@ export async function updateValuesOnClockedStatusChange(): Promise<void> {
     isClockingIn
   )
 
-  if (!isClockingIn) {
+  if (isClockingIn) {
     // clocking out
     totalTimeWorked.timeWorkedHours += currentClockedInTime.clockedHours
     totalTimeWorked.timeWorkedHours += currentClockedInTime.clockedMinutes
     totalTimeWorked.timeWorkedHours += currentClockedInTime.clockedSeconds
 
     return await chrome.storage.local.set({
-      [StorageKeys.ClockedTime]: null, // not clocked in
+      [StorageKeys.ClockedTime]: undefined, // not clocked in
       [StorageKeys.TimeWorked]: totalTimeWorked,
       [StorageKeys.Status]: Status.ClockedOut
     })

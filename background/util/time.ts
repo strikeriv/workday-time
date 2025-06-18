@@ -25,7 +25,6 @@ async function parsePageForTime(page: Page): Promise<boolean> {
     await chrome.storage.local.set({
       [StorageKeys.LastUpdated]: new Date().getTime()
     })
-    console.log("hmm")
 
     return true
   } catch {
@@ -76,13 +75,14 @@ async function readClockTime(page: Page): Promise<boolean> {
       ...promptButtons
     )
 
-    const clockTimeString = /\d:\d{2} (P|AM)/gm.exec(
+    const clockTimeString = /\d{1,2}:\d{2} (P|AM)/gm.exec(
       promptButtonTexts.join("|")
     )
     if (!clockTimeString?.[0]) return
 
     const splitTime = clockTimeString[0].split(" ").map((val) => val.trim())
     const duration = splitTime[0].split(":")
+    console.log(clockTimeString, splitTime, duration)
     const period = splitTime[1]
     const day = period === "AM" ? 0 : 12
 
@@ -92,6 +92,7 @@ async function readClockTime(page: Page): Promise<boolean> {
     clockedInDate.setMilliseconds(0)
     clockedInDate.setSeconds(0)
 
+    console.log(clockTimeString, "yo")
     evaluateStatus(clockTimeString.input.includes("In"))
 
     await chrome.storage.local.set({
@@ -106,9 +107,15 @@ async function readClockTime(page: Page): Promise<boolean> {
 
 async function evaluateStatus(isClockedIn: boolean): Promise<boolean> {
   try {
+    console.log(
+      "Evaluating clocked status...",
+      isClockedIn ? Status.ClockedIn : Status.ClockedOut
+    )
     await chrome.storage.local.set({
       [StorageKeys.Status]: isClockedIn ? Status.ClockedIn : Status.ClockedOut
     })
+
+    console.log("saved successfully")
 
     return true
   } catch {

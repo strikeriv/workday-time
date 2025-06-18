@@ -53,7 +53,19 @@
     "host_permissions": [
       "https://wd501.myworkday.com/jbhunt/*"
     ],
+    "web_accessible_resources": [
+      {
+        "resources": [
+          "assets/icon-192x192.png"
+        ],
+        "matches": [
+          "<all_urls>"
+        ]
+      }
+    ],
     "permissions": [
+      "web_accessible_resources",
+      "notifications",
       "webRequest",
       "scripting",
       "debugger",

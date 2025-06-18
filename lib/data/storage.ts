@@ -1,17 +1,13 @@
-import { Status, type Storage } from "~interfaces/interfaces"
-import { StorageKeys } from "~lib/constants"
+import { type Storage, type TimeWorked } from "~interfaces/interfaces"
+import { Status, StorageKeys } from "~lib/constants"
 
 export async function getStorage(): Promise<Storage> {
-  let storage: Storage = (await chrome.storage.local.get([
-    StorageKeys.ClockedTime,
-    StorageKeys.TimeWorked,
-    StorageKeys.Preferences,
-    StorageKeys.LastUpdated,
-    StorageKeys.Status
-  ])) as Storage
+  const keys = Object.values(StorageKeys) as StorageKeys[]
+  let storage: Storage = (await chrome.storage.local.get(keys)) as Storage
 
   // check to see if values exist, if not, set them to default values
-  if (!storage[StorageKeys.ClockedTime] || !storage[StorageKeys.TimeWorked]) {
+  if (!storage || !doStorageKeysExist(storage)) {
+    console.log("making new storage")
     storage = {
       [StorageKeys.Preferences]: {
         hoursToWork: 8,
@@ -21,12 +17,21 @@ export async function getStorage(): Promise<Storage> {
       },
       [StorageKeys.LastUpdated]: Date.now(),
       [StorageKeys.ClockedTime]: null,
-      [StorageKeys.TimeWorked]: null,
-      [StorageKeys.Status]: Status.Unknown
+      [StorageKeys.TimeWorked]: {
+        hours: 0,
+        minutes: 0,
+        seconds: 0
+      } as TimeWorked,
+      [StorageKeys.Status]: Status.Desynced
     }
 
     await chrome.storage.local.set(storage)
   }
 
   return storage
+}
+
+export function doStorageKeysExist(storage: Storage): boolean {
+  console.log(storage, "storage")
+  return Object.values(StorageKeys).every((key) => key in storage)
 }

@@ -53,12 +53,12 @@ async function changeClockedStatus(
     return await closeTab(tab)
   }
 
-  const didParse = await parsePageForTime(page)
-  if (!didParse) {
-    console.error("Failed to parse the time page.")
-  }
+  // const didParse = await parsePageForTime(page)
+  // if (!didParse) {
+  //   console.error("Failed to parse the time page.")
+  // }
 
-  // never close the tab. listener will handle it
+  // // never close the tab. listener will handle it
 }
 
 async function closeTab(tab: chrome.tabs.Tab): Promise<void> {

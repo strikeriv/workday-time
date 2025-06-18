@@ -1,4 +1,4 @@
-import { ExternalLink, Settings } from "lucide-react"
+import { ExternalLink, Info, Settings } from "lucide-react"
 import { useEffect } from "react"
 import { Link } from "react-router-dom"
 
@@ -6,6 +6,7 @@ import { ClockedStatus } from "~components/props/dynamic/clock"
 import { CurrentTimeClock } from "~components/props/dynamic/current-time"
 import { PayPage } from "~components/props/dynamic/pay"
 import { TotalTimeClock } from "~components/props/dynamic/total-time"
+import { CustomTooltip } from "~components/props/tooltip"
 import { Button } from "~components/ui/button"
 import { Separator } from "~components/ui/separator"
 import { type Storage } from "~interfaces/interfaces"
@@ -40,26 +41,38 @@ export function ClockedInPage({
         estimated pay for the week
       </p>
 
-      <ClockedStatus
-        className="mt-6"
-        tick={tick}
-        isClockedIn={true}
-        clockedInTime={storage?.clockedTime}
-      />
+      <div className="flex items-center justify-between pt-6">
+        <ClockedStatus
+          tick={tick}
+          isClockedIn={true}
+          clockedInTime={storage?.clockedTime}
+        />
+        <div className="flex flex-row items-start gap-2">
+          <ClockedStatus
+            tick={tick}
+            isClockedIn={false}
+            isAlternateText={true}
+            clockedInTime={
+              storage?.clockedTime + storage.preferences.hoursToWork * 3600000
+            }
+          />
+        </div>
+      </div>
+
       <CurrentTimeClock
-        className="mt-6"
+        className="pt-6"
         tick={tick}
         clockedInTime={storage?.clockedTime}
       />
       <TotalTimeClock
-        className="mt-6"
+        className="pt-6"
         tick={tick}
         isClockedIn={true}
         clockedInTime={storage?.clockedTime}
         existingTime={storage?.timeWorked}
       />
       <PayPage
-        className="mt-6"
+        className="pt-6"
         tick={tick}
         isClockedIn={true}
         k401DeductionEnabled={storage?.preferences?.k401DeductionEnabled}

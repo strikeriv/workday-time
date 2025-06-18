@@ -2,6 +2,7 @@ import { Circle } from "lucide-react"
 import { useEffect, useState } from "react"
 
 import { type Storage } from "~interfaces/interfaces"
+import { Status as StatusType } from "~lib/constants"
 import { cn } from "~lib/utils"
 
 interface Status extends React.ComponentPropsWithoutRef<"div"> {
@@ -9,6 +10,7 @@ interface Status extends React.ComponentPropsWithoutRef<"div"> {
 }
 
 const statusColors = {
+  orange: "text-orange-400",
   green: "text-green-600",
   gray: "text-gray-400"
 }
@@ -22,12 +24,16 @@ export function StatusBar({ className, storage, ...props }: Readonly<Status>) {
   async function evaluateStatus() {
     const clockedInTime = storage.clockedTime
     const timeWorked = storage.timeWorked
+    const status = storage.status
 
     if (clockedInTime && timeWorked) {
       const clockedInDate = new Date(clockedInTime)
       const currentTime = new Date()
 
-      if (currentTime.getTime() > clockedInDate.getTime()) {
+      if (status === StatusType.Desynced) {
+        setStatus("Desynced")
+        setStatusColor("orange")
+      } else if (currentTime.getTime() > clockedInDate.getTime()) {
         setStatus("Online")
         setStatusColor("green")
       } else {
