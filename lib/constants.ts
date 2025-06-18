@@ -1,4 +1,4 @@
-export const AutoModeKey = "autoModeCheck"
+export const NotificationAlarm = "notification-alarm"
 
 export enum StorageKeys {
   Preferences = "preferences",

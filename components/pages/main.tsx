@@ -40,8 +40,7 @@ export function Main({
 
   async function updateStorageValues(): Promise<Storage> {
     const storage = await getStorage()
-
-    console.log("Storage values updated:", storage)
+    console.log(await chrome.alarms.getAll())
     setStorage(storage)
     setStatus(storage.status)
 
@@ -61,7 +60,7 @@ export function Main({
 
   async function handleClockOut() {
     const resp: Message = await sendToBackground({
-      name: "show-notification"
+      name: "clock-out"
     })
 
     if (resp.status === MessageStatus.Success) {
@@ -72,21 +71,17 @@ export function Main({
 
   async function handleSyncingData() {
     const resp: Message = await sendToBackground({ name: "sync-data" })
-    console.log(resp)
     if (resp.status === MessageStatus.Success) {
       console.log("Data synced successfully.")
-
-      // await chrome.storage.local.set({
 
       setRefresh((r) => r + 1) // trigger a refresh
     }
   }
 
   useEffect(() => {
-    console.log("on mount?")
     async function onRefresh() {
       const instantStorage = await updateStorageValues()
-      await evaluateAlarmStatus(instantStorage.preferences.autoModeEnabled)
+      await evaluateAlarmStatus(instantStorage.preferences.notificationsEnabled)
     }
 
     onRefresh()

@@ -36,7 +36,7 @@ import { StatusBar } from "../props/status"
 
 const settingsSchema = z.object({
   hoursToWork: z.number().min(0).max(10),
-  autoModeEnabled: z.boolean(),
+  notificationsEnabled: z.boolean(),
   k401DeductionEnabled: z.boolean(),
   k401Percentage: z.number().min(0).max(100)
 })
@@ -52,7 +52,7 @@ export function SettingsPage({
   const form = useForm({
     defaultValues: {
       hoursToWork: 8,
-      autoModeEnabled: false,
+      notificationsEnabled: false,
       k401DeductionEnabled: false,
       k401Percentage: 6
     }
@@ -62,7 +62,7 @@ export function SettingsPage({
     setSaving(true)
 
     await chrome.storage.local.set({ [StorageKeys.Preferences]: values })
-    await evaluateAlarmStatus(values.autoModeEnabled)
+    await evaluateAlarmStatus(values.notificationsEnabled)
 
     await wait(500) // instant save, purely for UI feedback
 
@@ -144,7 +144,7 @@ export function SettingsPage({
                 <div className="flex items-center space-x-2">
                   <FormField
                     control={form.control}
-                    name="autoModeEnabled"
+                    name="notificationsEnabled"
                     render={({ field }) => (
                       <FormItem className="flex items-center">
                         <FormControl>
@@ -154,7 +154,7 @@ export function SettingsPage({
                           />
                         </FormControl>
                         <FormLabel className="!my-0 pl-2 text-muted-foreground">
-                          Auto Mode
+                          Enable notifications
                         </FormLabel>
                       </FormItem>
                     )}

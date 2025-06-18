@@ -1,12 +1,10 @@
-import { ExternalLink, Info, Settings } from "lucide-react"
-import { useEffect } from "react"
+import { ExternalLink, Settings } from "lucide-react"
 import { Link } from "react-router-dom"
 
 import { ClockedStatus } from "~components/props/dynamic/clock"
 import { CurrentTimeClock } from "~components/props/dynamic/current-time"
 import { PayPage } from "~components/props/dynamic/pay"
 import { TotalTimeClock } from "~components/props/dynamic/total-time"
-import { CustomTooltip } from "~components/props/tooltip"
 import { Button } from "~components/ui/button"
 import { Separator } from "~components/ui/separator"
 import { type Storage } from "~interfaces/interfaces"
@@ -24,16 +22,6 @@ export function ClockedInPage({
   storage,
   ...props
 }: Readonly<ClockedInPageProps>) {
-  useEffect(() => {
-    if (!storage?.preferences?.autoModeEnabled) return
-
-    const interval = setInterval(() => {
-      console.log("auto mode tick")
-    }, 1000)
-
-    return () => clearInterval(interval)
-  }, [storage?.preferences?.autoModeEnabled])
-
   return (
     <div className={className} {...props}>
       <p className="text-sm text-muted-foreground">

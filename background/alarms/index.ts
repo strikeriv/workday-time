@@ -1,12 +1,14 @@
-import { changeClockedStatus } from "~background"
-import { Status } from "~lib/constants"
+import { sendNotification } from "~background/messages/show-notification"
+import { NotificationAlarm, Status } from "~lib/constants"
 import { getStorage } from "~lib/data/storage"
 
 function registerAlarmListener() {
   console.log("Alarm listener registered.")
   chrome.alarms.onAlarm.addListener(async (alarm) => {
-    if (alarm.name === "autoModeCheck") {
-      // auto mode is enabled; check clocked status
+    console.log(await chrome.alarms.getAll())
+    console.log("Alarm triggered:", alarm.name)
+    if (alarm.name === NotificationAlarm) {
+      // notifications are enabled; check clocked status
       const storage = await getStorage()
       if (storage.status !== Status.ClockedIn) return
 
@@ -17,14 +19,16 @@ function registerAlarmListener() {
       const now = new Date().getTime()
 
       const clockedDuration = now - clockedTime
-      const clockedDurationInHours = clockedDuration / (1000 * 60 * 60) - 30000 // subtract 30 minutes for buffer
+      const clockedDurationInHours = clockedDuration / (1000 * 60 * 60) - 1 / 60 // subtract 1 minute for the alarm delay
 
+      console.log(
+        clockedDuration,
+        clockedDurationInHours,
+        hoursToWork,
+        clockedDurationInHours >= hoursToWork
+      )
       if (clockedDurationInHours >= hoursToWork) {
-        console.log("Clocked duration exceeded hours to work; clocking out.")
-        await changeClockedStatus(true, false) // not manual
-
-        // TODO: Update this once values are updated after clocking out
-        chrome.alarms.clear("autoModeCheck") // clear the alarm
+        //sendNotification()
       }
     }
   })

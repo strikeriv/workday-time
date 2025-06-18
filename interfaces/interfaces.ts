@@ -10,7 +10,7 @@ export interface Storage {
 
 export interface Preferences {
   hoursToWork: number
-  autoModeEnabled: boolean
+  notificationsEnabled: boolean
   k401DeductionEnabled: boolean
   k401Percentage: number
 }

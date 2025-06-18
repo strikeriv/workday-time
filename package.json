@@ -64,7 +64,6 @@
       }
     ],
     "permissions": [
-      "web_accessible_resources",
       "notifications",
       "webRequest",
       "scripting",

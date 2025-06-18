@@ -6,6 +6,13 @@ import { MessageStatus, type Message } from "~background/interfaces/interfaces"
 const handler: PlasmoMessaging.MessageHandler = async (req, res) => {
   console.log("Sending notification to clock out")
 
+  res.send({
+    message: "Successfully sent notification.",
+    status: MessageStatus.Success
+  } as Message)
+}
+
+export function sendNotification() {
   chrome.notifications.create("clock-out-notification", {
     type: "basic",
     iconUrl: chrome.runtime.getURL("assets/icon-192x192.png"),
@@ -27,11 +34,6 @@ const handler: PlasmoMessaging.MessageHandler = async (req, res) => {
       console.log("Clocked out.")
     }
   )
-
-  res.send({
-    message: "Successfully sent notification.",
-    status: MessageStatus.Success
-  } as Message)
 }
 
 export default handler

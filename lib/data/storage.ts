@@ -7,11 +7,10 @@ export async function getStorage(): Promise<Storage> {
 
   // check to see if values exist, if not, set them to default values
   if (!storage || !doStorageKeysExist(storage)) {
-    console.log("making new storage")
     storage = {
       [StorageKeys.Preferences]: {
         hoursToWork: 8,
-        autoModeEnabled: false,
+        notificationsEnabled: false,
         k401DeductionEnabled: false,
         k401Percentage: 6
       },
@@ -32,6 +31,5 @@ export async function getStorage(): Promise<Storage> {
 }
 
 export function doStorageKeysExist(storage: Storage): boolean {
-  console.log(storage, "storage")
   return Object.values(StorageKeys).every((key) => key in storage)
 }
