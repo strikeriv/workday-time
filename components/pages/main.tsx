@@ -40,7 +40,7 @@ export function Main({
 
   async function updateStorageValues(): Promise<Storage> {
     const storage = await getStorage()
-    console.log(await chrome.alarms.getAll())
+
     setStorage(storage)
     setStatus(storage.status)
 

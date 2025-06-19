@@ -14,13 +14,13 @@ export function calculateCurrentClockedInTime(
     (timeDifference % (1000 * 60 * 60)) / (1000 * 60)
   )
   const secondsWorked = Math.floor((timeDifference % (1000 * 60)) / 1000)
+
   return {
     clockedHours: hoursWorked,
     clockedMinutes: minutesWorked,
     clockedSeconds: secondsWorked
   }
 }
-
 export function calculateTotalTimeWorked(
   clockedInTime: number,
   existingTime: TimeWorked,

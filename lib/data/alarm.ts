@@ -1,3 +1,4 @@
+import type { TimeWorked } from "~interfaces/interfaces"
 import { NotificationAlarm, Status, StorageKeys } from "~lib/constants"
 
 import { getStorage } from "./storage"
@@ -42,20 +43,25 @@ export async function updateValuesOnClockedStatusChange(): Promise<void> {
   )
 
   if (isClockingIn) {
-    // clocking out
-    totalTimeWorked.timeWorkedHours += currentClockedInTime.clockedHours
-    totalTimeWorked.timeWorkedHours += currentClockedInTime.clockedMinutes
-    totalTimeWorked.timeWorkedHours += currentClockedInTime.clockedSeconds
+    const hours = (totalTimeWorked.timeWorkedHours +=
+      currentClockedInTime.clockedHours)
+    const minutes = (totalTimeWorked.timeWorkedMinutes +=
+      currentClockedInTime.clockedMinutes)
+    const seconds = (totalTimeWorked.timeWorkedSeconds +=
+      currentClockedInTime.clockedSeconds)
 
     return await chrome.storage.local.set({
-      [StorageKeys.ClockedTime]: undefined, // not clocked in
-      [StorageKeys.TimeWorked]: totalTimeWorked,
+      [StorageKeys.ClockedTime]: new Date().getTime(),
+      [StorageKeys.TimeWorked]: {
+        hours,
+        minutes,
+        seconds
+      } as TimeWorked,
       [StorageKeys.Status]: Status.ClockedOut
     })
   } else {
-    // clocking in
     return await chrome.storage.local.set({
-      [StorageKeys.ClockedTime]: new Date().getTime(), // not clocked in
+      [StorageKeys.ClockedTime]: new Date().getTime(),
       [StorageKeys.Status]: Status.ClockedIn
     })
   }
