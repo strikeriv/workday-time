@@ -8,7 +8,7 @@ export function registerWebRequestListener() {
         details.method === "POST" &&
         details.url.includes("flowController.htmld")
       ) {
-        // A clocked even.t Toggle depending on the chrome storage
+        // A clocked event Toggle depending on the chrome storage
         console.log("Clocked status change detected.")
 
         // should be on the time page after clocking in/out

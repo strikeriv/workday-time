@@ -1,4 +1,5 @@
-import { registerAlarmListener } from "./alarms"
+import { registerAlarmListener } from "./listener/alarm"
+import { registerNotificationListener } from "./listener/notification"
 import { registerWebRequestListener } from "./listener/web-request"
 import { parsePageForClocked } from "./util/clocked"
 import { openWorkdayTab } from "./util/pages"
@@ -65,6 +66,7 @@ async function closeTab(tab: chrome.tabs.Tab): Promise<void> {
   }
 }
 
+registerNotificationListener()
 registerWebRequestListener()
 registerAlarmListener()
 
