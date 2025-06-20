@@ -61,8 +61,17 @@ export function SettingsPage({
   async function onSubmit(values: z.infer<typeof settingsSchema>) {
     setSaving(true)
 
+    const previousHours = storage?.preferences?.hoursToWork ?? 8
+    console.log("Previous hours to work:", previousHours)
+    console.log("New hours to work:", values.hoursToWork)
     await chrome.storage.local.set({ [StorageKeys.Preferences]: values })
-    await evaluateAlarmStatus(values.notificationsEnabled)
+
+    // evaluate whether we need to create or update the alarm
+    await evaluateAlarmStatus(values.notificationsEnabled, {
+      shouldRecreateAlarm: values.hoursToWork !== previousHours,
+      delayInMinutes:
+        0.5 + Math.floor((1000 - new Date().getMilliseconds()) / 1000) // offset the alarm
+    })
 
     await wait(500) // instant save, purely for UI feedback
 

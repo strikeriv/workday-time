@@ -2,16 +2,34 @@ import type { TimeWorked } from "~interfaces/interfaces"
 import { NotificationAlarm, Status, StorageKeys } from "~lib/constants"
 
 import { getStorage } from "./storage"
-import { calculateCurrentClockedInTime, calculateTotalTimeWorked } from "./time"
+import { calculateTotalTimeWorked } from "./time"
 
-export async function evaluateAlarmStatus(autoModeEnabled: boolean) {
+interface AlarmOptions {
+  shouldRecreateAlarm?: boolean
+  delayInMinutes?: number
+}
+
+export async function evaluateAlarmStatus(
+  notificationsEnabled: boolean,
+  options?: AlarmOptions
+): Promise<void> {
   const existingAlarm = await chrome.alarms.get(NotificationAlarm)
-  if (autoModeEnabled) {
-    if (existingAlarm) return
+  const shouldRecreateAlarm = options?.shouldRecreateAlarm ?? false
+  if (notificationsEnabled) {
+    if (existingAlarm && shouldRecreateAlarm) return
 
-    console.log("Notifications enabled. Creating alarm.")
+    if (shouldRecreateAlarm) {
+      console.log("Hours changed. Resetting alarm.")
+    } else {
+      console.log("Notifications enabled. Creating alarm.")
+    }
+
+    // we want the delay to happen to that the alarm is triggered exactly when the user clocks in
+    // calcualte how many ms needed
+    const delayInMinutes = options?.delayInMinutes ?? null // default to 30 seconds
     await chrome.alarms.create(NotificationAlarm, {
-      periodInMinutes: 0.5 // every 30 seconds
+      periodInMinutes: 0.5, // every 30 seconds
+      delayInMinutes
     })
   } else {
     console.log("Notifications disabled. Clearing alarm.")
@@ -35,27 +53,21 @@ export async function updateValuesOnClockedStatusChange(): Promise<void> {
     console.log("Clocking out...")
   }
 
-  const currentClockedInTime = calculateCurrentClockedInTime(clockedTime)
-  const totalTimeWorked = calculateTotalTimeWorked(
-    clockedTime,
-    timeWorked,
-    isClockingIn
-  )
-
   if (isClockingIn) {
-    const hours = (totalTimeWorked.timeWorkedHours +=
-      currentClockedInTime.clockedHours)
-    const minutes = (totalTimeWorked.timeWorkedMinutes +=
-      currentClockedInTime.clockedMinutes)
-    const seconds = (totalTimeWorked.timeWorkedSeconds +=
-      currentClockedInTime.clockedSeconds)
+    const totalTimeWorked = calculateTotalTimeWorked(
+      clockedTime,
+      timeWorked,
+      isClockingIn
+    )
+    const { timeWorkedHours, timeWorkedMinutes, timeWorkedSeconds } =
+      totalTimeWorked
 
     return await chrome.storage.local.set({
       [StorageKeys.ClockedTime]: new Date().getTime(),
       [StorageKeys.TimeWorked]: {
-        hours,
-        minutes,
-        seconds
+        hours: timeWorkedHours,
+        minutes: timeWorkedMinutes,
+        seconds: timeWorkedSeconds
       } as TimeWorked,
       [StorageKeys.Status]: Status.ClockedOut
     })

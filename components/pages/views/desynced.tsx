@@ -18,7 +18,7 @@ export function DesyncedPage({
   ...props
 }: Readonly<ClockedOutPageProps>) {
   const isDataAvailable = doStorageKeysExist(storage)
-
+  console.log(storage, isDataAvailable)
   return (
     <div className={className} {...props}>
       <div className="flex flex-1 flex-col justify-center">

@@ -1,6 +1,4 @@
-import { time } from "console"
-
-import { sendClockOutNotification } from "~background/messages/show-notification"
+import { sendClockOutNotification } from "~background/util/notifications"
 import { NotificationAlarm, Status } from "~lib/constants"
 import { getStorage } from "~lib/data/storage"
 import { calculateCurrentClockedInTime } from "~lib/data/time"

@@ -1,16 +1,4 @@
-import type { PlasmoMessaging } from "@plasmohq/messaging"
-
-import { MessageStatus, type Message } from "~background/interfaces/interfaces"
 import { NotificationAlarm } from "~lib/constants"
-
-const handler: PlasmoMessaging.MessageHandler = async (req, res) => {
-  console.log("Sending notification to clock out")
-
-  res.send({
-    message: "Successfully sent notification.",
-    status: MessageStatus.Success
-  } as Message)
-}
 
 export function sendClockOutNotification(
   timeTillClockOut: number,
@@ -30,5 +18,3 @@ export function sendClockOutNotification(
     priority: 2
   })
 }
-
-export default handler
