@@ -2,13 +2,14 @@ import { Page } from "puppeteer-core/lib/esm/puppeteer/puppeteer-core-browser.js
 
 import { Status, StorageKeys } from "~lib/constants"
 
-async function parsePageForTime(page: Page): Promise<boolean> {
+export async function parsePageForTime(page: Page): Promise<boolean> {
   try {
     console.log("Reading total week time...")
+
     const readWeekTimeSuccessfully = await readWeekTime(page)
     if (!readWeekTimeSuccessfully) {
       console.error("Failed to read total week time.")
-      return
+      return false
     }
 
     console.log("Read total week time successfully.")
@@ -17,10 +18,8 @@ async function parsePageForTime(page: Page): Promise<boolean> {
     const readClockTimeSuccessfully = await readClockTime(page)
     if (!readClockTimeSuccessfully) {
       console.error("Failed to read clocked in time.")
-      return
+      return false
     }
-
-    console.log("Read clocked in time successfully.")
 
     await chrome.storage.local.set({
       [StorageKeys.LastUpdated]: new Date().getTime()
@@ -44,8 +43,10 @@ async function readWeekTime(page: Page): Promise<boolean> {
     )
 
     const matchedValues = /\d+(\.\d+)?/gm.exec(timePageButtonsText.join("|"))
-    const thisWeekTime = matchedValues?.[0]?.split(/(?=\.)/) || []
+    const rawThisWeekTime = matchedValues?.[0]
+    const thisWeekTime = rawThisWeekTime?.split(/(?=\.)/) || []
 
+    console.log(`This week time found: ${rawThisWeekTime} hours.`)
     let hours = parseInt(thisWeekTime[0])
     const rawMinutes = parseFloat(thisWeekTime[1] ?? "0")
 
@@ -63,6 +64,10 @@ async function readWeekTime(page: Page): Promise<boolean> {
       minutes = minutes % 60
     }
 
+    console.log(
+      `Parsed time: ${hours} hours, ${minutes} minutes, ${seconds} seconds. Saving into storage...`
+    )
+
     await chrome.storage.local.set({
       [StorageKeys.TimeWorked]: {
         hours,
@@ -71,6 +76,7 @@ async function readWeekTime(page: Page): Promise<boolean> {
       }
     })
 
+    console.log("Time worked saved successfully.")
     return true
   } catch {
     return false
@@ -86,25 +92,34 @@ async function readClockTime(page: Page): Promise<boolean> {
       ...promptButtons
     )
 
-    const clockTimeString = /\d{1,2}:\d{2} (P|AM)/gm.exec(
+    const rawClockTimeString = /\d{1,2}:\d{2} (P|AM)/gm.exec(
       promptButtonTexts.join("|")
     )
-    if (!clockTimeString?.[0]) return
+    const clockTimeString = rawClockTimeString?.[0]?.trim()
+    if (!clockTimeString) return
 
-    const splitTime = clockTimeString[0].split(" ").map((val) => val.trim())
+    console.log(`Clocked time found: ${clockTimeString}.`)
+    const splitTime = clockTimeString.split(" ").map((val) => val.trim())
     const duration = splitTime[0].split(":")
     const period = splitTime[1]
     const day = period === "AM" ? 0 : 12
 
-    const clockedInDate = new Date()
-    clockedInDate.setHours(parseInt(duration[0]) + day)
-    clockedInDate.setMinutes(parseInt(duration[1]))
+    const clockedDate = new Date()
+    clockedDate.setHours(parseInt(duration[0]) + day)
+    clockedDate.setMinutes(parseInt(duration[1]))
 
-    evaluateStatus(clockTimeString.input.includes("In"))
+    console.log(
+      `Parsed clocked time: ${clockedDate.toLocaleTimeString()}. Saving into storage...`
+    )
 
     await chrome.storage.local.set({
-      [StorageKeys.ClockedTime]: clockedInDate.getTime()
+      [StorageKeys.ClockedTime]: clockedDate.getTime()
     })
+
+    console.log("Clocked time saved successfully.")
+
+    // need to evaluate the status based on the clocked time
+    evaluateStatus(rawClockTimeString.input.includes("In"))
 
     return true
   } catch {
@@ -114,20 +129,16 @@ async function readClockTime(page: Page): Promise<boolean> {
 
 async function evaluateStatus(isClockedIn: boolean): Promise<boolean> {
   try {
-    console.log(
-      "Evaluating clocked status...",
-      isClockedIn ? Status.ClockedIn : Status.ClockedOut
-    )
+    const status = isClockedIn ? Status.ClockedIn : Status.ClockedOut
+
+    console.log(`Evaluated clocked status: ${status}. Saving into storage...`)
     await chrome.storage.local.set({
       [StorageKeys.Status]: isClockedIn ? Status.ClockedIn : Status.ClockedOut
     })
 
-    console.log("saved successfully")
-
+    console.log("Status saved successfully.")
     return true
   } catch {
     return false
   }
 }
-
-export { parsePageForTime, readClockTime, readWeekTime }

@@ -25,13 +25,15 @@ const PageWrapper = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: 40 * direction }}
+      initial={{ opacity: 0, x: 40 * (direction ?? 1) }}
       animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -40 * direction }}
+      exit={{ opacity: 0, x: -40 * (direction ?? 1) }}
       transition={{ duration: 0.2 }}
       style={{ height: "100%" }}>
       {children}
     </motion.div>
+
+    // <motion.div style={{ height: "100%" }}>{children}</motion.div>
   )
 }
 

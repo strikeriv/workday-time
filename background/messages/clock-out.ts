@@ -5,7 +5,6 @@ import { MessageStatus, type Message } from "~background/interfaces/interfaces"
 
 const handler: PlasmoMessaging.MessageHandler = async (req, res) => {
   console.log("Clocking out...")
-
   await changeClockedStatus(true, false)
 
   res.send({

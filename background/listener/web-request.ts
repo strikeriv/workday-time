@@ -12,9 +12,7 @@ export function registerWebRequestListener() {
         console.log("Clocked status change detected.")
 
         // should be on the time page after clocking in/out
-        updateValuesOnClockedStatusChange().then(() => {
-          console.log("fnished!")
-        })
+        updateValuesOnClockedStatusChange()
       }
     },
     { urls: ["https://wd501.myworkday.com/jbhunt/*"] },

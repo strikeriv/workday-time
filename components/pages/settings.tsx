@@ -23,7 +23,7 @@ import { useForm } from "react-hook-form"
 import { Link } from "react-router-dom"
 import { z } from "zod"
 
-import { wait } from "~background/util"
+import { wait } from "~background/util/misc"
 import { CustomTooltip } from "~components/props/tooltip"
 import { Input } from "~components/ui/input"
 import { Switch } from "~components/ui/switch"
@@ -62,8 +62,6 @@ export function SettingsPage({
     setSaving(true)
 
     const previousHours = storage?.preferences?.hoursToWork ?? 8
-    console.log("Previous hours to work:", previousHours)
-    console.log("New hours to work:", values.hoursToWork)
     await chrome.storage.local.set({ [StorageKeys.Preferences]: values })
 
     // evaluate whether we need to create or update the alarm

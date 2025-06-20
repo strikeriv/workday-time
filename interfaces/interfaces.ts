@@ -4,6 +4,7 @@ export interface Storage {
   lastUpdated: number // used to determine if the data is stale
   preferences: Preferences // setting preferences
   clockedTime: number // when the user clocked in, in milliseconds
+  hourlyRate: number // user's hourly rate, in dollars
   timeWorked: TimeWorked // total time worked, in hours and minutes
   status: Status // current status of the user, whether they are clocked in or out
 }

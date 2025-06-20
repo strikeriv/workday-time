@@ -16,6 +16,7 @@ export async function getStorage(): Promise<Storage> {
       },
       [StorageKeys.LastUpdated]: Date.now(),
       [StorageKeys.ClockedTime]: null,
+      [StorageKeys.HourlyRate]: null,
       [StorageKeys.TimeWorked]: {
         hours: 0,
         minutes: 0,

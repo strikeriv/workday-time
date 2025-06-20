@@ -48,6 +48,7 @@ export function ClockedOutPage({
         className="mt-6"
         tick={tick}
         isClockedIn={false}
+        hourlyRate={storage?.hourlyRate}
         k401DeductionPercentage={storage?.preferences?.k401Percentage}
         clockedInTime={storage?.clockedTime}
         existingTime={storage?.timeWorked}

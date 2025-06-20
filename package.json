@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "plasmo dev",
     "clean": "plasmo clean",
-    "build": "plasmo build",
+    "build": "plasmo build --hoist --no-minify",
     "package": "plasmo package"
   },
   "dependencies": {

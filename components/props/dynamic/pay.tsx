@@ -6,16 +6,18 @@ import { calculateTotalTimeWorked } from "~lib/data/time"
 interface PayPageProps extends React.ComponentPropsWithoutRef<"div"> {
   tick: number
   isClockedIn: boolean
+  hourlyRate: number
   k401DeductionEnabled?: boolean
   k401DeductionPercentage?: number
-  clockedInTime?: number
-  existingTime?: TimeWorked
+  clockedInTime: number
+  existingTime: TimeWorked
 }
 
 export function PayPage({
   className,
   tick,
   isClockedIn,
+  hourlyRate,
   k401DeductionEnabled,
   k401DeductionPercentage,
   clockedInTime,
@@ -47,15 +49,13 @@ export function PayPage({
   }
 
   function calculatePay() {
-    const payRate = 25
-
     const { timeWorkedHours, timeWorkedMinutes, timeWorkedSeconds } =
       calculateTotalTimeWorked(clockedInTime, existingTime, isClockedIn)
 
     const totalPay =
-      timeWorkedHours * payRate +
-      timeWorkedMinutes * (payRate / 60) +
-      timeWorkedSeconds * (payRate / 3600)
+      timeWorkedHours * hourlyRate +
+      timeWorkedMinutes * (hourlyRate / 60) +
+      timeWorkedSeconds * (hourlyRate / 3600)
 
     return totalPay
   }

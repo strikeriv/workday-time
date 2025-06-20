@@ -1,43 +1,64 @@
 import { registerAlarmListener } from "./listener/alarm"
 import { registerNotificationListener } from "./listener/notification"
 import { registerWebRequestListener } from "./listener/web-request"
-import { parsePageForClocked } from "./util/clocked"
-import { openWorkdayTab } from "./util/pages"
-import { evaluatePageNavigation } from "./util/routing"
-import { parsePageForTime } from "./util/time"
+import { navigateToPage, ValidPages } from "./util/navigation"
+import { openWorkdayHomePage } from "./util/page"
+import { parsePageForClocked } from "./util/parsing/clocked"
+import { parsePayPageForData } from "./util/parsing/pay"
+import { parsePageForTime } from "./util/parsing/time"
+import { closeTab } from "./util/tabs"
 
-const homeWorkdayURL = "https://wd501.myworkday.com/jbhunt/d/home.htmld"
+async function syncDataFromWorkday(): Promise<void> {
+  const { tab, page } = await openWorkdayHomePage()
 
-async function grabTimeFromWorkday(): Promise<void> {
-  const browserState = await openWorkdayTab(homeWorkdayURL)
-  const { currentTab: tab, currentPage: page } = browserState
+  // head to the page page and grab pay data
+  const wasPayNavigationSuccessful = await navigateToPage(
+    page,
+    ValidPages.WorkdayPay
+  )
+  if (!wasPayNavigationSuccessful) {
+    console.error("Failed to navigate to the Workday pay page.")
+    return await closeTab(tab)
+  }
 
-  const didNavigate = await evaluatePageNavigation(browserState)
-  if (!didNavigate) {
+  console.log("Navigated to Workday pay page successfully.")
+  const didParsePay = await parsePayPageForData(page)
+  if (!didParsePay) {
+    console.error("Failed to parse the Workday pay page.")
+    // return await closeTab(tab)
+  }
+
+  console.log("Parsed pay page successfully.")
+  const wasTimeavigationSuccessful = await navigateToPage(
+    page,
+    ValidPages.WorkdayTime
+  )
+  if (!wasTimeavigationSuccessful) {
     console.error("Failed to navigate to the Workday time page.")
     return await closeTab(tab)
   }
 
-  // will be on the time page now
-  const didParse = await parsePageForTime(page)
-  if (!didParse) {
-    console.error("Failed to parse the time page.")
+  console.log("Navigated to Workday Time page successfully.")
+  const didParseTime = await parsePageForTime(page)
+  if (!didParseTime) {
+    console.error("Failed to parse the Workday time page.")
+    // return await closeTab(tab)
   }
 
-  await closeTab(tab)
+  console.log("Parsed time page successfully.")
+  return await closeTab(tab)
 }
 
 async function changeClockedStatus(
   isCheckingOut: boolean,
   manual: boolean
 ): Promise<void> {
-  const browserState = await openWorkdayTab(homeWorkdayURL)
-  const { currentTab: tab, currentPage: page } = browserState
+  const { tab, page } = await openWorkdayHomePage()
 
   // if manual, already on the time page
   // no need to navigate
   if (!manual) {
-    const didNavigate = await evaluatePageNavigation(browserState)
+    const didNavigate = await navigateToPage(page, ValidPages.WorkdayTime)
     if (!didNavigate) {
       console.error("Failed to navigate to the Workday time page.")
       return await closeTab(tab)
@@ -57,17 +78,8 @@ async function changeClockedStatus(
   return await closeTab(tab)
 }
 
-async function closeTab(tab: chrome.tabs.Tab): Promise<void> {
-  console.log("Closing tab...")
-  try {
-    await chrome.tabs.remove(tab.id)
-  } catch {
-    console.log("Failed to close tab.")
-  }
-}
-
 registerNotificationListener()
 registerWebRequestListener()
 registerAlarmListener()
 
-export { changeClockedStatus, grabTimeFromWorkday }
+export { changeClockedStatus, syncDataFromWorkday }
