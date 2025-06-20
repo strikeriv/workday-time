@@ -134,7 +134,8 @@ export function SettingsPage({
                             if (
                               e.key !== "ArrowUp" &&
                               e.key !== "ArrowDown" &&
-                              e.key !== "Tab"
+                              e.key !== "Tab" &&
+                              e.key !== "Enter" // allow Enter key for saving
                             ) {
                               e.preventDefault()
                             }
@@ -243,7 +244,8 @@ export function SettingsPage({
                             if (
                               e.key !== "ArrowUp" &&
                               e.key !== "ArrowDown" &&
-                              e.key !== "Tab"
+                              e.key !== "Tab" &&
+                              e.key !== "Enter" // allow Enter key for saving
                             ) {
                               e.preventDefault()
                             }
