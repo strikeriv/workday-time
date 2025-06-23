@@ -8,6 +8,10 @@ import { TotalTimeClock } from "~components/props/dynamic/total-time"
 import { Button } from "~components/ui/button"
 import { Separator } from "~components/ui/separator"
 import { type Storage } from "~interfaces/interfaces"
+import {
+  calculateCurrentClockedInTime,
+  calculateTotalTimeWorked
+} from "~lib/data/time"
 
 interface ClockedInPageProps extends React.ComponentPropsWithoutRef<"div"> {
   tick: number
@@ -22,6 +26,22 @@ export function ClockedInPage({
   storage,
   ...props
 }: Readonly<ClockedInPageProps>) {
+  // calculate clock out time based on clocked time and hours to work
+  // cap at 40 hours if the time would exceed 40 hours
+  const { hours, minutes, seconds } = storage.timeWorked
+  let clockOutTime =
+    storage?.clockedTime + storage.preferences.hoursToWork * 3600000
+
+  const alreadyWorkedHours = hours + (minutes / 60 || 0) + (seconds / 3600 || 0)
+  const wantingToWorkHours =
+    alreadyWorkedHours + storage?.preferences?.hoursToWork
+
+  if (wantingToWorkHours > 40) {
+    // cap the time at 40
+    const hoursOverMilliseconds = (wantingToWorkHours - 40) * 3600000
+    clockOutTime -= hoursOverMilliseconds
+  }
+
   return (
     <div className={className} {...props}>
       <p className="text-sm text-muted-foreground">
@@ -33,16 +53,14 @@ export function ClockedInPage({
         <ClockedStatus
           tick={tick}
           isClockedIn={true}
-          clockedInTime={storage?.clockedTime}
+          clockedTime={storage?.clockedTime}
         />
         <div className="flex flex-row items-start gap-2">
           <ClockedStatus
             tick={tick}
             isClockedIn={false}
             isAlternateText={true}
-            clockedInTime={
-              storage?.clockedTime + storage.preferences.hoursToWork * 3600000
-            }
+            clockedTime={clockOutTime}
           />
         </div>
       </div>

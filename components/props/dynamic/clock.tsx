@@ -7,7 +7,7 @@ interface ClockedStatusProps extends React.ComponentPropsWithoutRef<"div"> {
   tick: number
   isClockedIn: boolean
   isAlternateText?: boolean
-  clockedInTime?: number
+  clockedTime?: number
 }
 
 export function ClockedStatus({
@@ -15,23 +15,23 @@ export function ClockedStatus({
   tick,
   isClockedIn,
   isAlternateText,
-  clockedInTime,
+  clockedTime,
   ...props
 }: Readonly<ClockedStatusProps>) {
-  const [clockedTime, setClockedTime] = useState<string>("loading...")
+  const [time, setTime] = useState<string>("loading...")
 
   function updateClockedTime() {
-    const clockedInDate = new Date(clockedInTime)
+    const clockedInDate = new Date(clockedTime)
     const hours = clockedInDate.getHours()
     const hour12 = hours % 12 === 0 ? 12 : hours % 12
     const minutes = String(clockedInDate.getMinutes()).padStart(2, "0")
     const isAM = hours < 12
 
-    setClockedTime(`${hour12}:${minutes} ${isAM ? "AM" : "PM"}`)
+    setTime(`${hour12}:${minutes} ${isAM ? "AM" : "PM"}`)
   }
 
   useEffect(() => {
-    if (clockedInTime == null) return
+    if (time == null) return
 
     updateClockedTime()
   }, [tick])
@@ -47,7 +47,7 @@ export function ClockedStatus({
         <h2 className="text-base font-bold">{buttonText} at</h2>
 
         <div className="flex items-center gap-2">
-          <p className="text-sm text-muted-foreground">{clockedTime}</p>
+          <p className="text-sm text-muted-foreground">{time}</p>
 
           {isAlternateText && (
             <CustomTooltip

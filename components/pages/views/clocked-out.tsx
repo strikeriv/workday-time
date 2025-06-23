@@ -35,7 +35,7 @@ export function ClockedOutPage({
         className="mt-6"
         tick={tick}
         isClockedIn={false}
-        clockedInTime={storage?.clockedTime}
+        clockedTime={storage?.clockedTime}
       />
       <TotalTimeClock
         className="mt-6"
