@@ -1,3 +1,4 @@
+import { type Storage } from "~interfaces/interfaces"
 import { NotificationAlarm, Status, StorageKeys } from "~lib/constants"
 
 import { getStorage, updateStorage } from "./storage"
@@ -46,61 +47,32 @@ export async function updateStorageOnClockedStatusChange(): Promise<void> {
     return
   }
 
-  const isClockingIn = status !== Status.ClockedIn
-  if (isClockingIn) {
-    console.log("Clocking in...")
-  } else {
+  const isCheckingOut = status === Status.ClockedIn
+  if (isCheckingOut) {
     console.log("Clocking out...")
-  }
-
-  // we need to handle multiple clock out / clock in per day
-  // increment the time worked daily when clocking in
-  // and increment the total time worked when clocking out
-  console.log(isClockingIn, "hmmmm")
-  if (isClockingIn) {
-    // we are clocking in
-    console.log(
-      {
-        [StorageKeys.LastClockedTime]: new Date().getTime(),
-        [StorageKeys.TimeWorkedToday]: calculateDayTimeWorked(
-          lastClockedTime,
-          timeWorkedToday
-        ),
-        [StorageKeys.TimeWorkedThisWeek]: calculateTotalTimeWorked(
-          lastClockedTime,
-          timeWorkedThisWeek,
-          isClockingIn
-        ),
-        [StorageKeys.Status]: Status.ClockedIn
-      },
-      "somethin else"
-    )
-
-    await updateStorage({
-      [StorageKeys.LastClockedTime]: new Date().getTime(),
-      // [StorageKeys.TimeWorkedToday]: calculateDayTimeWorked(
-      //   lastClockedTime,
-      //   timeWorkedToday
-      // ),
-      // [StorageKeys.TimeWorkedThisWeek]: calculateTotalTimeWorked(
-      //   lastClockedTime,
-      //   timeWorkedThisWeek,
-      //   isClockingIn
-      // ),
-      [StorageKeys.Status]: Status.ClockedOut
-    })
   } else {
-    // we are clocking out
-
-    // set time worked daily to the current time worked
-    // plus the time currently worked today
-    await updateStorage({
-      [StorageKeys.LastClockedTime]: new Date().getTime(),
-      [StorageKeys.TimeWorkedToday]: calculateDayTimeWorked(
-        lastClockedTime,
-        timeWorkedToday
-      ),
-      [StorageKeys.Status]: Status.ClockedIn
-    })
+    console.log("Clocking in...")
   }
+
+  const storagePayload = {
+    [StorageKeys.LastClockedTime]: new Date().getTime(),
+    [StorageKeys.LastUpdated]: new Date().getTime(),
+    [StorageKeys.Status]: isCheckingOut ? Status.ClockedOut : Status.ClockedIn
+  } as Partial<Storage>
+
+  if (isCheckingOut) {
+    // update time worked today and this week
+    storagePayload[StorageKeys.TimeWorkedToday] = calculateDayTimeWorked(
+      lastClockedTime,
+      timeWorkedToday
+    )
+    storagePayload[StorageKeys.TimeWorkedThisWeek] = calculateTotalTimeWorked(
+      lastClockedTime,
+      timeWorkedThisWeek,
+      true // we are clocking out
+    )
+  }
+
+  // update values after clocking in or out
+  await updateStorage(storagePayload)
 }
