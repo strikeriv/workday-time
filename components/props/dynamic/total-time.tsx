@@ -1,47 +1,50 @@
+import type { Duration } from "date-fns"
 import { Info } from "lucide-react"
 import { useEffect, useState } from "react"
 
-import type { TimeWorked } from "~interfaces/interfaces"
-import { calculateTotalTimeWorked } from "~lib/data/time"
+import { calculateTotalTimeWorked, customFormatDuration } from "~lib/data/time"
 
 import { CustomTooltip } from "../tooltip"
 
 interface TotalTimeClockProps extends React.ComponentPropsWithoutRef<"div"> {
   tick: number
   isClockedIn: boolean
-  clockedInTime?: number
-  existingTime?: TimeWorked
+  lastClockedInTime?: number
+  timeWorkedThisWeek?: Duration
 }
 
 export function TotalTimeClock({
   className,
   tick,
   isClockedIn,
-  clockedInTime,
-  existingTime,
+  lastClockedInTime,
+  timeWorkedThisWeek,
   ...props
 }: Readonly<TotalTimeClockProps>) {
   const [totalWorkedTime, setTotalWorkedTime] = useState<string>("loading...")
 
   function updateTotalTimeWorked() {
-    const { timeWorkedHours, timeWorkedMinutes, timeWorkedSeconds } =
-      calculateTotalTimeWorked(clockedInTime, existingTime, isClockedIn)
-
     setTotalWorkedTime(
-      `${timeWorkedHours} hours, ${timeWorkedMinutes} minutes, ~${timeWorkedSeconds} seconds`
+      customFormatDuration(
+        calculateTotalTimeWorked(
+          lastClockedInTime,
+          timeWorkedThisWeek,
+          isClockedIn
+        )
+      )
     )
   }
 
   useEffect(() => {
-    if (clockedInTime == null) return
-    if (existingTime == null) return
+    if (lastClockedInTime == null) return
+    if (timeWorkedThisWeek == null) return
 
     updateTotalTimeWorked()
   }, [tick])
 
   return (
     <div className={className} {...props}>
-      <h2 className="text-base font-bold">Total time worked</h2>
+      <h2 className="text-base font-bold">Time worked this week</h2>
 
       <div className="flex items-center gap-2">
         <p className="text-sm text-muted-foreground">{totalWorkedTime}</p>

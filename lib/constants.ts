@@ -1,11 +1,12 @@
 export const NotificationAlarm = "notification-alarm"
 
 export enum StorageKeys {
-  Preferences = "preferences",
   LastUpdated = "lastUpdated",
-  ClockedTime = "clockedTime",
+  LastClockedTime = "lastClockedTime",
+  TimeWorkedToday = "timeWorkedToday",
+  TimeWorkedThisWeek = "timeWorkedThisWeek",
   HourlyRate = "hourlyRate",
-  TimeWorked = "timeWorked",
+  Preferences = "preferences",
   Status = "status"
 }
 

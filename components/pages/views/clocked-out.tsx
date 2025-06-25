@@ -35,14 +35,14 @@ export function ClockedOutPage({
         className="mt-6"
         tick={tick}
         isClockedIn={false}
-        clockedTime={storage?.clockedTime}
+        lastClockedTime={storage?.lastClockedTime}
       />
       <TotalTimeClock
         className="mt-6"
         tick={tick}
         isClockedIn={false}
-        clockedInTime={storage?.clockedTime}
-        existingTime={storage?.timeWorked}
+        lastClockedInTime={storage?.lastClockedTime}
+        timeWorkedThisWeek={storage?.timeWorkedThisWeek}
       />
       <PayPage
         className="mt-6"
@@ -50,13 +50,13 @@ export function ClockedOutPage({
         isClockedIn={false}
         hourlyRate={storage?.hourlyRate}
         k401DeductionPercentage={storage?.preferences?.k401Percentage}
-        clockedInTime={storage?.clockedTime}
-        existingTime={storage?.timeWorked}
+        lastClockedInTime={storage?.lastClockedTime}
+        timeWorkedThisWeek={storage?.timeWorkedThisWeek}
       />
 
       <div className="flex-1" />
 
-      <Separator className="my-6" />
+      <Separator className="relative left-1/2 right-1/2 my-6 w-[calc(100%+3rem)] -translate-x-1/2" />
 
       <div className="justifty-between">
         <Button type="button" className="float-left" onClick={onClockIn}>

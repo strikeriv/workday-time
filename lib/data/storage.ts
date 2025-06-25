@@ -1,4 +1,6 @@
-import { type Storage, type TimeWorked } from "~interfaces/interfaces"
+import { isSameDay, isSameWeek, type Duration } from "date-fns"
+
+import { type Storage } from "~interfaces/interfaces"
 import { Status, StorageKeys } from "~lib/constants"
 
 export async function getStorage(): Promise<Storage> {
@@ -7,30 +9,76 @@ export async function getStorage(): Promise<Storage> {
 
   // check to see if values exist, if not, set them to default values
   if (!storage || !doStorageKeysExist(storage)) {
-    storage = {
-      [StorageKeys.Preferences]: {
-        hoursToWork: 8,
-        notificationsEnabled: false,
-        k401DeductionEnabled: false,
-        k401Percentage: 6
-      },
-      [StorageKeys.LastUpdated]: Date.now(),
-      [StorageKeys.ClockedTime]: null,
-      [StorageKeys.HourlyRate]: null,
-      [StorageKeys.TimeWorked]: {
-        hours: 0,
-        minutes: 0,
-        seconds: 0
-      } as TimeWorked,
-      [StorageKeys.Status]: Status.Desynced
-    }
+    storage = await createBaseStorage()
+  }
 
-    await chrome.storage.local.set(storage)
+  // validate data & update as necessary
+  const lastClockedTimeData = new Date(storage.lastClockedTime)
+  if (!isSameWeek(lastClockedTimeData, new Date())) {
+    storage = await updateTimeOnNewWeek(storage)
+  }
+
+  if (!isSameDay(lastClockedTimeData, new Date())) {
+    storage = await updateTimeOnNewDay(storage)
   }
 
   return storage
 }
 
+export async function updateStorage(
+  updates: Partial<Storage>
+): Promise<Storage> {
+  await chrome.storage.local.set(updates)
+
+  return await getStorage()
+}
+
 export function doStorageKeysExist(storage: Storage): boolean {
   return Object.values(StorageKeys).every((key) => key in storage)
+}
+
+async function createBaseStorage(): Promise<Storage> {
+  const storage: Storage = {
+    [StorageKeys.LastUpdated]: Date.now(),
+    [StorageKeys.LastClockedTime]: null,
+    [StorageKeys.TimeWorkedToday]: {} as Duration,
+    [StorageKeys.TimeWorkedThisWeek]: {} as Duration,
+    [StorageKeys.HourlyRate]: null,
+    [StorageKeys.Preferences]: {
+      hoursToWork: 8,
+      notificationsEnabled: false,
+      k401DeductionEnabled: false,
+      k401Percentage: 6
+    },
+    [StorageKeys.Status]: Status.Desynced
+  }
+
+  await chrome.storage.local.set(storage)
+  return storage
+}
+
+async function updateTimeOnNewWeek(storage: Storage): Promise<Storage> {
+  // reset time worked for the week
+  storage.timeWorkedThisWeek = {} as Duration
+  storage.timeWorkedToday = {} as Duration
+
+  // reset last clocked time
+  storage.lastClockedTime = null
+
+  // update last updated time
+  storage.lastUpdated = Date.now()
+
+  await chrome.storage.local.set(storage)
+  return storage
+}
+
+async function updateTimeOnNewDay(storage: Storage): Promise<Storage> {
+  // reset time worked for the day
+  storage.timeWorkedToday = {} as Duration
+
+  // update last updated time
+  storage.lastUpdated = Date.now()
+
+  await chrome.storage.local.set(storage)
+  return storage
 }

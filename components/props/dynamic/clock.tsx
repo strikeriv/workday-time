@@ -1,3 +1,4 @@
+import { format } from "date-fns"
 import { Info } from "lucide-react"
 import { useEffect, useState } from "react"
 
@@ -7,7 +8,7 @@ interface ClockedStatusProps extends React.ComponentPropsWithoutRef<"div"> {
   tick: number
   isClockedIn: boolean
   isAlternateText?: boolean
-  clockedTime?: number
+  lastClockedTime?: number
 }
 
 export function ClockedStatus({
@@ -15,23 +16,17 @@ export function ClockedStatus({
   tick,
   isClockedIn,
   isAlternateText,
-  clockedTime,
+  lastClockedTime,
   ...props
 }: Readonly<ClockedStatusProps>) {
   const [time, setTime] = useState<string>("loading...")
 
   function updateClockedTime() {
-    const clockedInDate = new Date(clockedTime)
-    const hours = clockedInDate.getHours()
-    const hour12 = hours % 12 === 0 ? 12 : hours % 12
-    const minutes = String(clockedInDate.getMinutes()).padStart(2, "0")
-    const isAM = hours < 12
-
-    setTime(`${hour12}:${minutes} ${isAM ? "AM" : "PM"}`)
+    setTime(format(new Date(lastClockedTime), "h:mm a"))
   }
 
   useEffect(() => {
-    if (time == null) return
+    if (lastClockedTime == null) return
 
     updateClockedTime()
   }, [tick])

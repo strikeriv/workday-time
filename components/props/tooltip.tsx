@@ -19,7 +19,7 @@ export function CustomTooltip({
   return (
     <TooltipProvider>
       <Tooltip>
-        <TooltipTrigger>{icon}</TooltipTrigger>
+        <TooltipTrigger asChild>{icon}</TooltipTrigger>
         <TooltipContent className={className}>{children}</TooltipContent>
       </Tooltip>
     </TooltipProvider>

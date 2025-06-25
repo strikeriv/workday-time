@@ -1,4 +1,4 @@
-import { updateValuesOnClockedStatusChange } from "~lib/data/alarm"
+import { updateStorageOnClockedStatusChange } from "~lib/data/alarm"
 
 export function registerWebRequestListener() {
   console.log("Registering web request listener.")
@@ -11,11 +11,10 @@ export function registerWebRequestListener() {
         // A clocked event Toggle depending on the chrome storage
         console.log("Clocked status change detected.")
 
-        // should be on the time page after clocking in/out
-        updateValuesOnClockedStatusChange()
+        updateStorageOnClockedStatusChange()
       }
     },
     { urls: ["https://wd501.myworkday.com/jbhunt/*"] },
-    ["requestBody", "extraHeaders"]
+    []
   )
 }

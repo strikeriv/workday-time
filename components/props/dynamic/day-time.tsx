@@ -1,41 +1,44 @@
+import { type Duration } from "date-fns"
 import { Info } from "lucide-react"
 import { useEffect, useState } from "react"
 
-import { calculateCurrentClockedInTime } from "~lib/data/time"
+import { calculateDayTimeWorked, customFormatDuration } from "~lib/data/time"
 
 import { CustomTooltip } from "../tooltip"
 
-interface CurrentTimeClockProps extends React.ComponentPropsWithoutRef<"div"> {
+interface DayTimeClockProps extends React.ComponentPropsWithoutRef<"div"> {
   tick: number
-  clockedInTime?: number
+  lastClockedInTime?: number
+  timeWorkedToday?: Duration
 }
 
-export function CurrentTimeClock({
+export function DayTimeClock({
   className,
   tick,
-  clockedInTime,
+  lastClockedInTime,
+  timeWorkedToday,
   ...props
-}: Readonly<CurrentTimeClockProps>) {
+}: Readonly<DayTimeClockProps>) {
   const [currentTime, setCurrentTime] = useState<string>("loading...")
 
   function updateClockedInTimer() {
-    const { clockedHours, clockedMinutes, clockedSeconds } =
-      calculateCurrentClockedInTime(clockedInTime)
-
     setCurrentTime(
-      `${clockedHours} hours, ${clockedMinutes} minutes, ~${clockedSeconds} seconds`
+      customFormatDuration(
+        calculateDayTimeWorked(lastClockedInTime, timeWorkedToday)
+      )
     )
   }
 
   useEffect(() => {
-    if (clockedInTime == null) return
+    if (lastClockedInTime == null) return
+    if (timeWorkedToday == null) return
 
     updateClockedInTimer()
   }, [tick])
 
   return (
     <div className={className} {...props}>
-      <h2 className="text-base font-bold">Current time worked</h2>
+      <h2 className="text-base font-bold">Time worked today</h2>
 
       <div className="flex items-center gap-2">
         <p className="text-sm text-muted-foreground">{currentTime}</p>

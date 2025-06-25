@@ -1,7 +1,7 @@
 import { sendClockOutNotification } from "~background/util/notifications"
 import { NotificationAlarm, Status } from "~lib/constants"
 import { getStorage } from "~lib/data/storage"
-import { calculateCurrentClockedInTime } from "~lib/data/time"
+import { calculateCurrentTimeWorked } from "~lib/data/time"
 
 const MinuteNotifications = [15, 5, 1] // minutes at which to notify
 
@@ -13,14 +13,14 @@ function registerAlarmListener() {
       const storage = await getStorage()
       if (storage.status !== Status.ClockedIn) return
 
-      const { clockedTime, preferences } = storage
+      const { lastClockedTime, preferences } = storage
       const { hoursToWork } = preferences
 
-      const currentTimeWorked = calculateCurrentClockedInTime(clockedTime)
+      const currentTimeWorked = calculateCurrentTimeWorked(lastClockedTime)
 
       const timeToWorkInMinutes = Math.floor(hoursToWork * 60)
       const currentTimeWorkedInMinutes =
-        currentTimeWorked.clockedHours * 60 + currentTimeWorked.clockedMinutes
+        currentTimeWorked.hours * 60 + currentTimeWorked.minutes
 
       const durationLeft = timeToWorkInMinutes - currentTimeWorkedInMinutes
       const isOverTime = durationLeft < 0

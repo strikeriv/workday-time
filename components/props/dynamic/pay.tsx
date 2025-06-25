@@ -1,6 +1,6 @@
+import { type Duration } from "date-fns"
 import { useEffect, useState } from "react"
 
-import type { TimeWorked } from "~interfaces/interfaces"
 import { calculateTotalTimeWorked } from "~lib/data/time"
 
 interface PayPageProps extends React.ComponentPropsWithoutRef<"div"> {
@@ -9,8 +9,8 @@ interface PayPageProps extends React.ComponentPropsWithoutRef<"div"> {
   hourlyRate: number
   k401DeductionEnabled?: boolean
   k401DeductionPercentage?: number
-  clockedInTime: number
-  existingTime: TimeWorked
+  lastClockedInTime: number
+  timeWorkedThisWeek: Duration
 }
 
 export function PayPage({
@@ -20,8 +20,8 @@ export function PayPage({
   hourlyRate,
   k401DeductionEnabled,
   k401DeductionPercentage,
-  clockedInTime,
-  existingTime,
+  lastClockedInTime,
+  timeWorkedThisWeek,
   ...props
 }: Readonly<PayPageProps>) {
   const [estimatedPay, setEstimatedPay] = useState<string>("loading...")
@@ -49,20 +49,23 @@ export function PayPage({
   }
 
   function calculatePay() {
-    const { timeWorkedHours, timeWorkedMinutes, timeWorkedSeconds } =
-      calculateTotalTimeWorked(clockedInTime, existingTime, isClockedIn)
+    const { hours, minutes, seconds } = calculateTotalTimeWorked(
+      lastClockedInTime,
+      timeWorkedThisWeek,
+      isClockedIn
+    )
 
     const totalPay =
-      timeWorkedHours * hourlyRate +
-      timeWorkedMinutes * (hourlyRate / 60) +
-      timeWorkedSeconds * (hourlyRate / 3600)
+      (hours ?? 0) * hourlyRate +
+      (minutes ?? 0) * (hourlyRate / 60) +
+      (seconds ?? 0) * (hourlyRate / 3600)
 
     return totalPay
   }
 
   useEffect(() => {
-    if (clockedInTime == null) return
-    if (clockedInTime == null) return
+    if (lastClockedInTime == null) return
+    if (timeWorkedThisWeek == null) return
 
     const pay = calculatePay()
 
@@ -77,7 +80,7 @@ export function PayPage({
       <div className="flex flex-col">
         <p className="text-sm text-muted-foreground">{estimatedPay}</p>
         <p className="text-sm text-muted-foreground">
-          {estimatedDeductionsPay} ( with deductions )
+          {estimatedDeductionsPay} (with deductions)
         </p>
       </div>
     </div>

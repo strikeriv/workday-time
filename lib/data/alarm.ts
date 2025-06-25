@@ -1,8 +1,7 @@
-import type { TimeWorked } from "~interfaces/interfaces"
 import { NotificationAlarm, Status, StorageKeys } from "~lib/constants"
 
-import { getStorage } from "./storage"
-import { calculateTotalTimeWorked } from "./time"
+import { getStorage, updateStorage } from "./storage"
+import { calculateDayTimeWorked, calculateTotalTimeWorked } from "./time"
 
 interface AlarmOptions {
   shouldRecreateAlarm?: boolean
@@ -37,8 +36,9 @@ export async function evaluateAlarmStatus(
   }
 }
 
-export async function updateValuesOnClockedStatusChange(): Promise<void> {
-  const { clockedTime, timeWorked, status } = await getStorage()
+export async function updateStorageOnClockedStatusChange(): Promise<void> {
+  const { lastClockedTime, timeWorkedToday, timeWorkedThisWeek, status } =
+    await getStorage()
 
   // update the values in storage when they clock in or out
   if (status === Status.Desynced) {
@@ -46,34 +46,60 @@ export async function updateValuesOnClockedStatusChange(): Promise<void> {
     return
   }
 
-  const isClockingIn = status === Status.ClockedIn
+  const isClockingIn = status !== Status.ClockedIn
   if (isClockingIn) {
     console.log("Clocking in...")
   } else {
     console.log("Clocking out...")
   }
 
+  // we need to handle multiple clock out / clock in per day
+  // increment the time worked daily when clocking in
+  // and increment the total time worked when clocking out
+  console.log(isClockingIn, "hmmmm")
   if (isClockingIn) {
-    const totalTimeWorked = calculateTotalTimeWorked(
-      clockedTime,
-      timeWorked,
-      isClockingIn
+    // we are clocking in
+    console.log(
+      {
+        [StorageKeys.LastClockedTime]: new Date().getTime(),
+        [StorageKeys.TimeWorkedToday]: calculateDayTimeWorked(
+          lastClockedTime,
+          timeWorkedToday
+        ),
+        [StorageKeys.TimeWorkedThisWeek]: calculateTotalTimeWorked(
+          lastClockedTime,
+          timeWorkedThisWeek,
+          isClockingIn
+        ),
+        [StorageKeys.Status]: Status.ClockedIn
+      },
+      "somethin else"
     )
-    const { timeWorkedHours, timeWorkedMinutes, timeWorkedSeconds } =
-      totalTimeWorked
 
-    return await chrome.storage.local.set({
-      [StorageKeys.ClockedTime]: new Date().getTime(),
-      [StorageKeys.TimeWorked]: {
-        hours: timeWorkedHours,
-        minutes: timeWorkedMinutes,
-        seconds: timeWorkedSeconds
-      } as TimeWorked,
+    await updateStorage({
+      [StorageKeys.LastClockedTime]: new Date().getTime(),
+      // [StorageKeys.TimeWorkedToday]: calculateDayTimeWorked(
+      //   lastClockedTime,
+      //   timeWorkedToday
+      // ),
+      // [StorageKeys.TimeWorkedThisWeek]: calculateTotalTimeWorked(
+      //   lastClockedTime,
+      //   timeWorkedThisWeek,
+      //   isClockingIn
+      // ),
       [StorageKeys.Status]: Status.ClockedOut
     })
   } else {
-    return await chrome.storage.local.set({
-      [StorageKeys.ClockedTime]: new Date().getTime(),
+    // we are clocking out
+
+    // set time worked daily to the current time worked
+    // plus the time currently worked today
+    await updateStorage({
+      [StorageKeys.LastClockedTime]: new Date().getTime(),
+      [StorageKeys.TimeWorkedToday]: calculateDayTimeWorked(
+        lastClockedTime,
+        timeWorkedToday
+      ),
       [StorageKeys.Status]: Status.ClockedIn
     })
   }

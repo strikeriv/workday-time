@@ -22,12 +22,11 @@ export function StatusBar({ className, storage, ...props }: Readonly<Status>) {
   const color = statusColors[statusColor] ?? statusColors.gray
 
   async function evaluateStatus() {
-    const clockedInTime = storage.clockedTime
-    const timeWorked = storage.timeWorked
+    const { lastClockedTime, timeWorkedThisWeek } = storage
     const status = storage.status
 
-    if (clockedInTime && timeWorked) {
-      const clockedInDate = new Date(clockedInTime)
+    if (lastClockedTime && timeWorkedThisWeek) {
+      const clockedInDate = new Date(lastClockedTime)
       const currentTime = new Date()
 
       if (status === StatusType.Desynced) {

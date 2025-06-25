@@ -1,37 +1,48 @@
+import { Duration } from "date-fns"
 import { Page } from "puppeteer-core/lib/esm/puppeteer/puppeteer-core-browser.js"
 
 import { Status, StorageKeys } from "~lib/constants"
 
-export async function parsePageForTime(page: Page): Promise<boolean> {
+interface PageData extends ClockedData {
+  lastUpdated: number
+  timeWorkedThisWeek: Duration
+}
+
+interface ClockedData {
+  status: Status
+  lastClockedTime: number
+}
+
+export async function parsePageForTime(page: Page): Promise<PageData> {
   try {
     console.log("Reading total week time...")
 
-    const readWeekTimeSuccessfully = await readWeekTime(page)
-    if (!readWeekTimeSuccessfully) {
-      console.error("Failed to read total week time.")
-      return false
+    const timeWorkedThisWeek = await readWeekTime(page)
+    if (!timeWorkedThisWeek) {
+      console.error("Failed to read the time worked this time.")
+      return
     }
 
     console.log("Read total week time successfully.")
     console.log("Reading clocked in time...")
 
-    const readClockTimeSuccessfully = await readClockTime(page)
-    if (!readClockTimeSuccessfully) {
-      console.error("Failed to read clocked in time.")
-      return false
+    const clockedData = await readClockTime(page)
+    if (!clockedData) {
+      console.error("Failed to read clocked data.")
+      return
     }
 
-    await chrome.storage.local.set({
-      [StorageKeys.LastUpdated]: new Date().getTime()
-    })
-
-    return true
+    return {
+      lastUpdated: new Date().getTime(),
+      timeWorkedThisWeek,
+      ...clockedData
+    }
   } catch {
-    return false
+    return
   }
 }
 
-async function readWeekTime(page: Page): Promise<boolean> {
+async function readWeekTime(page: Page): Promise<Duration> {
   try {
     const timePageButtons = await page.$$(
       "[data-automation-id=dropDownCommandButton]"
@@ -65,25 +76,20 @@ async function readWeekTime(page: Page): Promise<boolean> {
     }
 
     console.log(
-      `Parsed time: ${hours} hours, ${minutes} minutes, ${seconds} seconds. Saving into storage...`
+      `Parsed time for the week: ${hours} hours, ${minutes} minutes, ${seconds} seconds.`
     )
 
-    await chrome.storage.local.set({
-      [StorageKeys.TimeWorked]: {
-        hours,
-        minutes,
-        seconds
-      }
-    })
-
-    console.log("Time worked saved successfully.")
-    return true
+    return {
+      hours,
+      minutes,
+      seconds
+    } as Duration
   } catch {
-    return false
+    return
   }
 }
 
-async function readClockTime(page: Page): Promise<boolean> {
+async function readClockTime(page: Page): Promise<ClockedData> {
   try {
     const promptButtons = await page.$$("[data-automation-id=promptOption]")
     if (!promptButtons) return
@@ -108,37 +114,15 @@ async function readClockTime(page: Page): Promise<boolean> {
     clockedDate.setHours(parseInt(duration[0]) + day)
     clockedDate.setMinutes(parseInt(duration[1]))
 
-    console.log(
-      `Parsed clocked time: ${clockedDate.toLocaleTimeString()}. Saving into storage...`
-    )
+    console.log(`Parsed clocked time: ${clockedDate.toLocaleTimeString()}.`)
 
-    await chrome.storage.local.set({
-      [StorageKeys.ClockedTime]: clockedDate.getTime()
-    })
-
-    console.log("Clocked time saved successfully.")
-
-    // need to evaluate the status based on the clocked time
-    evaluateStatus(rawClockTimeString.input.includes("In"))
-
-    return true
+    return {
+      status: rawClockTimeString.input.includes("In")
+        ? Status.ClockedIn
+        : Status.ClockedOut,
+      lastClockedTime: clockedDate.getTime()
+    }
   } catch {
-    return false
-  }
-}
-
-async function evaluateStatus(isClockedIn: boolean): Promise<boolean> {
-  try {
-    const status = isClockedIn ? Status.ClockedIn : Status.ClockedOut
-
-    console.log(`Evaluated clocked status: ${status}. Saving into storage...`)
-    await chrome.storage.local.set({
-      [StorageKeys.Status]: isClockedIn ? Status.ClockedIn : Status.ClockedOut
-    })
-
-    console.log("Status saved successfully.")
-    return true
-  } catch {
-    return false
+    return
   }
 }

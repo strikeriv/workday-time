@@ -70,10 +70,9 @@ async function findAndClickOkButton(page: Page): Promise<boolean> {
     const allLocators = await page.$$(commandButtonSelector)
     for (const locator of allLocators) {
       const text = await page.evaluate((el) => el.textContent, locator)
-      console.log(text, "text")
       if (text && text.trim().toLowerCase() === "ok") {
         await locator.click()
-        console.log(`Clicked on ok button successfully.`)
+        console.log(`Clicked on Ok button successfully.`)
         return true
       }
     }
@@ -101,10 +100,9 @@ async function findAndClickDoneButton(
     const allLocators = await page.$$(doneButtonSelector)
     for (const locator of allLocators) {
       const text = await page.evaluate((el) => el.textContent, locator)
-      console.log(text, "text")
       if (text && text.trim().toLowerCase() === "done") {
         await locator.click()
-        console.log(`Clicked on done button successfully.`)
+        console.log(`Clicked on Done button successfully.`)
         return true
       }
     }

@@ -1,17 +1,15 @@
+import { roundToNearestMinutes } from "date-fns"
 import { ExternalLink, Settings } from "lucide-react"
 import { Link } from "react-router-dom"
 
 import { ClockedStatus } from "~components/props/dynamic/clock"
-import { CurrentTimeClock } from "~components/props/dynamic/current-time"
+import { DayTimeClock } from "~components/props/dynamic/day-time"
 import { PayPage } from "~components/props/dynamic/pay"
 import { TotalTimeClock } from "~components/props/dynamic/total-time"
 import { Button } from "~components/ui/button"
 import { Separator } from "~components/ui/separator"
 import { type Storage } from "~interfaces/interfaces"
-import {
-  calculateCurrentClockedInTime,
-  calculateTotalTimeWorked
-} from "~lib/data/time"
+import { calculateDayTimeWorked, durationToMilliseconds } from "~lib/data/time"
 
 interface ClockedInPageProps extends React.ComponentPropsWithoutRef<"div"> {
   tick: number
@@ -26,20 +24,25 @@ export function ClockedInPage({
   storage,
   ...props
 }: Readonly<ClockedInPageProps>) {
-  // calculate clock out time based on clocked time and hours to work
-  // cap at 40 hours if the time would exceed 40 hours
-  const { hours, minutes, seconds } = storage.timeWorked
-  let clockOutTime =
-    storage?.clockedTime + storage.preferences.hoursToWork * 3600000
+  function calculateClockOutTime(): number {
+    const { lastClockedTime, timeWorkedToday, preferences } = storage
+    const { hoursToWork } = preferences
 
-  const alreadyWorkedHours = hours + (minutes / 60 || 0) + (seconds / 3600 || 0)
-  const wantingToWorkHours =
-    alreadyWorkedHours + storage?.preferences?.hoursToWork
+    if (
+      lastClockedTime === null ||
+      timeWorkedToday === null ||
+      preferences === null ||
+      hoursToWork === null
+    )
+      return
 
-  if (wantingToWorkHours > 40) {
-    // cap the time at 40
-    const hoursOverMilliseconds = (wantingToWorkHours - 40) * 3600000
-    clockOutTime -= hoursOverMilliseconds
+    const timeRemaining =
+      hoursToWork * 3600000 -
+      durationToMilliseconds(
+        calculateDayTimeWorked(lastClockedTime, timeWorkedToday)
+      )
+
+    return roundToNearestMinutes(new Date().getTime() + timeRemaining).getTime()
   }
 
   return (
@@ -53,29 +56,30 @@ export function ClockedInPage({
         <ClockedStatus
           tick={tick}
           isClockedIn={true}
-          clockedTime={storage?.clockedTime}
+          lastClockedTime={storage?.lastClockedTime}
         />
         <div className="flex flex-row items-start gap-2">
           <ClockedStatus
             tick={tick}
             isClockedIn={false}
             isAlternateText={true}
-            clockedTime={clockOutTime}
+            lastClockedTime={calculateClockOutTime()}
           />
         </div>
       </div>
 
-      <CurrentTimeClock
+      <DayTimeClock
         className="pt-6"
         tick={tick}
-        clockedInTime={storage?.clockedTime}
+        lastClockedInTime={storage?.lastClockedTime}
+        timeWorkedToday={storage?.timeWorkedToday}
       />
       <TotalTimeClock
         className="pt-6"
         tick={tick}
         isClockedIn={true}
-        clockedInTime={storage?.clockedTime}
-        existingTime={storage?.timeWorked}
+        lastClockedInTime={storage?.lastClockedTime}
+        timeWorkedThisWeek={storage?.timeWorkedThisWeek}
       />
       <PayPage
         className="pt-6"
@@ -84,11 +88,11 @@ export function ClockedInPage({
         hourlyRate={storage?.hourlyRate}
         k401DeductionEnabled={storage?.preferences?.k401DeductionEnabled}
         k401DeductionPercentage={storage?.preferences?.k401Percentage}
-        clockedInTime={storage?.clockedTime}
-        existingTime={storage?.timeWorked}
+        lastClockedInTime={storage?.lastClockedTime}
+        timeWorkedThisWeek={storage?.timeWorkedThisWeek}
       />
 
-      <Separator className="my-6" />
+      <Separator className="relative left-1/2 right-1/2 my-6 w-[calc(100%+3rem)] -translate-x-1/2" />
 
       <div className="justifty-between">
         <Button type="button" className="float-left" onClick={onClockOut}>

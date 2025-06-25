@@ -103,7 +103,7 @@ export function Main({
           </CardDescription>
         </CardHeader>
         <CardContent className="flex h-full flex-1 flex-col">
-          <Separator className="mb-6" />
+          <Separator className="relative left-1/2 right-1/2 mb-6 w-[calc(100%+3rem)] -translate-x-1/2" />
 
           {(() => {
             let content

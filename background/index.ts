@@ -1,3 +1,5 @@
+import { updateStorage } from "~lib/data/storage"
+
 import { registerAlarmListener } from "./listener/alarm"
 import { registerNotificationListener } from "./listener/notification"
 import { registerWebRequestListener } from "./listener/web-request"
@@ -39,13 +41,17 @@ async function syncDataFromWorkday(): Promise<void> {
   }
 
   console.log("Navigated to Workday Time page successfully.")
-  const didParseTime = await parsePageForTime(page)
-  if (!didParseTime) {
+  const parsedPage = await parsePageForTime(page)
+  if (!parsedPage) {
     console.error("Failed to parse the Workday time page.")
     // return await closeTab(tab)
   }
 
-  console.log("Parsed time page successfully.")
+  // save into storage
+  console.log("Saving parsed time data to storage...")
+  await updateStorage(parsedPage)
+
+  console.log("Saved parsed time data successfully.")
   return await closeTab(tab)
 }
 

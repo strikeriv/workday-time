@@ -103,7 +103,7 @@ export function SettingsPage({
           </CardDescription>
         </CardHeader>
         <CardContent className="flex h-full flex-1 flex-col">
-          <Separator className="mb-6" />
+          <Separator className="relative left-1/2 right-1/2 mb-6 w-[calc(100%+3rem)] -translate-x-1/2" />
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -185,7 +185,7 @@ export function SettingsPage({
                   </CustomTooltip>
                 </div>
 
-                <Separator className="my-6" />
+                <Separator className="relative left-1/2 right-1/2 my-6 w-[calc(100%+3rem)] -translate-x-1/2" />
 
                 <p className="text-sm text-muted-foreground">
                   Further settings to customize your experience
@@ -249,6 +249,7 @@ export function SettingsPage({
                             }
                           }}
                           className="w-full pr-px"
+                          disabled={!form.watch("k401DeductionEnabled")}
                         />
                         <span className="pointer-events-none absolute right-6 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
                           %
@@ -265,7 +266,7 @@ export function SettingsPage({
                 <div className="flex-1" />
               </div>
 
-              <Separator className="my-6" />
+              <Separator className="relative left-1/2 right-1/2 my-6 w-[calc(100%+3rem)] -translate-x-1/2" />
 
               <div className="justifty-between">
                 {saving ? (
