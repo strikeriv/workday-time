@@ -1,4 +1,5 @@
 export const NotificationAlarm = "notification-alarm"
+export const NotificationStorageKey = "notifications"
 
 export enum StorageKeys {
   LastUpdated = "lastUpdated",

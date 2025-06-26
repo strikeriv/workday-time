@@ -13,10 +13,14 @@ export async function evaluateAlarmStatus(
   notificationsEnabled: boolean,
   options?: AlarmOptions
 ): Promise<void> {
+  console.log("here?")
   const existingAlarm = await chrome.alarms.get(NotificationAlarm)
   const shouldRecreateAlarm = options?.shouldRecreateAlarm ?? false
+  console.log(existingAlarm, shouldRecreateAlarm, "in evaluate status")
   if (notificationsEnabled) {
-    if (existingAlarm && shouldRecreateAlarm) return
+    if (existingAlarm) {
+      if (!shouldRecreateAlarm) return
+    }
 
     if (shouldRecreateAlarm) {
       console.log("Hours changed. Resetting alarm.")
@@ -26,10 +30,9 @@ export async function evaluateAlarmStatus(
 
     // we want the delay to happen to that the alarm is triggered exactly when the user clocks in
     // calcualte how many ms needed
-    const delayInMinutes = options?.delayInMinutes ?? null // default to 30 seconds
     await chrome.alarms.create(NotificationAlarm, {
       periodInMinutes: 0.5, // every 30 seconds
-      delayInMinutes
+      delayInMinutes: 0
     })
   } else {
     console.log("Notifications disabled. Clearing alarm.")

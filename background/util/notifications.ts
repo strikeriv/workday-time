@@ -1,20 +1,43 @@
 import { NotificationAlarm } from "~lib/constants"
+import {
+  clearNotificationData,
+  getNotificationData,
+  isWithinNotificationRange,
+  NotificationRangeIds,
+  setNotificationData
+} from "~lib/data/notifications"
 
-export function sendClockOutNotification(
-  timeTillClockOut: number,
-  isOverTime: boolean
+export async function sendNotification(
+  notification: chrome.notifications.NotificationOptions<true>,
+  notificationId: NotificationRangeIds,
+  dismissable: boolean
 ) {
-  console.log("Sending clock out notification...")
+  const isNotification = await getNotificationData(NotificationAlarm)
+  if (isNotification) {
+    // a notification is already sent to the user and hasn't been interacted with
+    // determine whether we re-send a notification
+    const { timestamp, dismissable } = isNotification
+    if (dismissable) {
+      // grab the range associated with the notification
+      if (isWithinNotificationRange(notificationId, Date.now() - timestamp)) {
+        return
+      }
+
+      // otherwise, we send a new notification
+      await clearNotificationData(NotificationAlarm)
+    }
+  }
+
+  // if no notification is sent, or the notification is dismissable and
+  // the time has passed, we send a new notification
+
+  console.log("Sending notification:", notification)
   chrome.notifications.clear(NotificationAlarm)
-  chrome.notifications.create(NotificationAlarm, {
-    type: "basic",
-    iconUrl: chrome.runtime.getURL("assets/icon-192x192.png"),
-    title: "Time to Clock Out!",
-    message: isOverTime
-      ? "You are over your set time.\nYou need to clock out!"
-      : `You're ${timeTillClockOut} minute away from your time limit for today.`,
-    requireInteraction: true,
-    buttons: [{ title: "Clock out" }, { title: "Snooze for 5 minutes" }],
-    priority: 2
+  chrome.notifications.create(NotificationAlarm, notification)
+
+  await setNotificationData(NotificationAlarm, {
+    notificationId,
+    timestamp: Date.now(),
+    dismissable
   })
 }

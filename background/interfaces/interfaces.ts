@@ -5,7 +5,7 @@ export interface BrowserState {
   page: Page
 }
 
-export interface Message {
+export interface MessageResponse {
   message: string
   status: MessageStatus
 }

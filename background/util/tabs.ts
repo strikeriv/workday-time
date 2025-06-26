@@ -1,12 +1,5 @@
 import { wait } from "./misc"
 
-// export async function grabTabByURL(
-//   urls: string[]
-// ): Promise<chrome.tabs.Tab | null> {
-//   const tabs = await chrome.tabs.query({ currentWindow: true, active: true })
-//   return tabs.find((tab) => urls.some((url) => tab.url?.includes(url))) ?? null
-// }
-
 export async function openNewTab(
   url: string,
   timeout: number = 1000

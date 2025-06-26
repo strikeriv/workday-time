@@ -1,7 +1,10 @@
 import { type Duration } from "date-fns"
 import { useEffect, useState } from "react"
 
-import { calculateTotalTimeWorked } from "~lib/data/time"
+import {
+  calculateTotalTimeWorked,
+  durationToMilliseconds
+} from "~lib/data/time"
 
 interface PayPageProps extends React.ComponentPropsWithoutRef<"div"> {
   tick: number
@@ -49,18 +52,15 @@ export function PayPage({
   }
 
   function calculatePay() {
-    const { hours, minutes, seconds } = calculateTotalTimeWorked(
-      lastClockedInTime,
-      timeWorkedThisWeek,
-      isClockedIn
+    const timeWorkedInMilliseconds = durationToMilliseconds(
+      calculateTotalTimeWorked(
+        lastClockedInTime,
+        timeWorkedThisWeek,
+        isClockedIn
+      )
     )
 
-    const totalPay =
-      (hours ?? 0) * hourlyRate +
-      (minutes ?? 0) * (hourlyRate / 60) +
-      (seconds ?? 0) * (hourlyRate / 3600)
-
-    return totalPay
+    return (timeWorkedInMilliseconds / 3600000) * hourlyRate
   }
 
   useEffect(() => {

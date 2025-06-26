@@ -16,7 +16,6 @@ export async function navigateToPage(
   try {
     console.log(`Navigating to ${page}...`)
     if (page === ValidPages.WorkdayHome) {
-      console.log("Vgoing to home here.")
       return await routeToWorkdayHomePage(currentPage)
     }
 

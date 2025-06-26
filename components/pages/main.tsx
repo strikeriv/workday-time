@@ -12,12 +12,15 @@ import { useEffect, useState } from "react"
 
 import { sendToBackground } from "@plasmohq/messaging"
 
-import { MessageStatus, type Message } from "~background/interfaces/interfaces"
+import {
+  MessageStatus,
+  type MessageResponse
+} from "~background/interfaces/interfaces"
 import { StatusBar } from "~components/props/status"
 import { type Storage } from "~interfaces/interfaces"
 import { Status } from "~lib/constants"
 import { evaluateAlarmStatus } from "~lib/data/alarm"
-import { getStorage } from "~lib/data/storage"
+import { getStorage, updateStorage } from "~lib/data/storage"
 
 import { ClockedInPage } from "./views/clocked-in"
 import { ClockedOutPage } from "./views/clocked-out"
@@ -48,7 +51,7 @@ export function Main({
   }
 
   async function handleClockIn() {
-    const resp: Message = await sendToBackground({
+    const resp = await sendToBackground<any, MessageResponse>({
       name: "clock-in"
     })
 
@@ -59,7 +62,7 @@ export function Main({
   }
 
   async function handleClockOut() {
-    const resp: Message = await sendToBackground({
+    const resp = await sendToBackground<any, MessageResponse>({
       name: "clock-out"
     })
 
@@ -70,7 +73,9 @@ export function Main({
   }
 
   async function handleSyncingData() {
-    const resp: Message = await sendToBackground({ name: "sync-data" })
+    const resp = await sendToBackground<any, MessageResponse>({
+      name: "sync-data"
+    })
     if (resp.status === MessageStatus.Success) {
       console.log("Data synced successfully.")
 

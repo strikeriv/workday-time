@@ -1,4 +1,31 @@
-import { intervalToDuration, type Duration } from "date-fns"
+import {
+  intervalToDuration,
+  roundToNearestMinutes,
+  type Duration
+} from "date-fns"
+
+import { type Storage } from "~interfaces/interfaces"
+
+export function calculateClockOutTime(storage: Storage): number {
+  const { lastClockedTime, timeWorkedToday, preferences } = storage
+  const { hoursToWork } = preferences
+
+  if (
+    lastClockedTime === null ||
+    timeWorkedToday === null ||
+    preferences === null ||
+    hoursToWork === null
+  )
+    return
+
+  const timeRemaining =
+    hoursToWork * 3600000 -
+    durationToMilliseconds(
+      calculateDayTimeWorked(lastClockedTime, timeWorkedToday)
+    )
+
+  return roundToNearestMinutes(new Date().getTime() + timeRemaining).getTime()
+}
 
 export function calculateCurrentTimeWorked(clockedTime: number): Duration {
   return intervalToDuration({
@@ -9,11 +36,11 @@ export function calculateCurrentTimeWorked(clockedTime: number): Duration {
 
 export function calculateDayTimeWorked(
   clockedTime: number,
-  timeWorkedDaily
+  timeWorkedToday: Duration
 ): Duration {
   return millisecondsToDuration(
     durationToMilliseconds(calculateCurrentTimeWorked(clockedTime)) +
-      durationToMilliseconds(timeWorkedDaily)
+      durationToMilliseconds(timeWorkedToday)
   )
 }
 
@@ -22,23 +49,24 @@ export function calculateTotalTimeWorked(
   timeWorkedThisWeek: Duration,
   isClockedIn: boolean
 ): Duration {
-  let { hours, minutes, seconds } = timeWorkedThisWeek
+  let { days = 0, hours = 0, minutes = 0, seconds = 0 } = timeWorkedThisWeek
 
   if (isClockedIn) {
     const {
-      hours: currentHours,
-      minutes: currentMinutes,
-      seconds: currentSeconds
+      hours: currentHours = 0,
+      minutes: currentMinutes = 0,
+      seconds: currentSeconds = 0
     } = calculateCurrentTimeWorked(lastClockedInTime)
 
-    hours += currentHours ?? 0
-    minutes += currentMinutes ?? 0
-    seconds += currentSeconds ?? 0
+    hours += currentHours
+    minutes += currentMinutes
+    seconds += currentSeconds
   }
 
   // convert duration to ms, then back to duration to normalize
   return millisecondsToDuration(
     durationToMilliseconds({
+      days,
       hours,
       minutes,
       seconds
@@ -48,7 +76,8 @@ export function calculateTotalTimeWorked(
 
 export function customFormatDuration(duration: Duration): string {
   // convert days to hours, minutes, and seconds
-  const totalHours = (duration.days ?? 0) * 24 + (duration.hours ?? 0)
+  const totalHours =
+    (duration.days ? duration.days * 24 : 0) + (duration.hours ?? 0)
   const minutes = duration.minutes ?? 0
   const seconds = duration.seconds ?? 0
 
@@ -56,7 +85,6 @@ export function customFormatDuration(duration: Duration): string {
 }
 
 export function durationToMilliseconds(duration: Duration): number {
-  // should only have hours, minutes, and seconds, but we handle other stuff just in case
   return (
     (duration.years ?? 0) * 365 * 24 * 60 * 60 * 1000 +
     (duration.months ?? 0) * 30 * 24 * 60 * 60 * 1000 +

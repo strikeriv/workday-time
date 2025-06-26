@@ -27,10 +27,10 @@ import { wait } from "~background/util/misc"
 import { CustomTooltip } from "~components/props/tooltip"
 import { Input } from "~components/ui/input"
 import { Switch } from "~components/ui/switch"
-import { type Storage } from "~interfaces/interfaces"
+import { type Preferences, type Storage } from "~interfaces/interfaces"
 import { StorageKeys } from "~lib/constants"
 import { evaluateAlarmStatus } from "~lib/data/alarm"
-import { getStorage } from "~lib/data/storage"
+import { getStorage, updateStorage } from "~lib/data/storage"
 
 import { StatusBar } from "../props/status"
 
@@ -62,18 +62,33 @@ export function SettingsPage({
     setSaving(true)
 
     const previousHours = storage?.preferences?.hoursToWork ?? 8
-    await chrome.storage.local.set({ [StorageKeys.Preferences]: values })
+    await updateStorage({ [StorageKeys.Preferences]: values as Preferences })
 
     // evaluate whether we need to create or update the alarm
+    //console.log(calculateAlarmDelay(), "should update alarm??")
+    // TODO: come back and see if we can match directly on top of the clock in time
     await evaluateAlarmStatus(values.notificationsEnabled, {
-      shouldRecreateAlarm: values.hoursToWork !== previousHours,
-      delayInMinutes:
-        0.5 + Math.floor((1000 - new Date().getMilliseconds()) / 1000) // offset the alarm
+      shouldRecreateAlarm: values.hoursToWork !== previousHours
     })
 
+    await updateStorageValues()
     await wait(500) // instant save, purely for UI feedback
 
+    // reupdate storage values
     setSaving(false)
+  }
+
+  function calculateAlarmDelay() {
+    const { lastClockedTime } = storage
+    const clockedInMs = new Date(lastClockedTime).getTime()
+    const normalTime = clockedInMs + 30000 // 30 seconds after clocked in time;
+
+    const currentTime = new Date().getTime()
+    const delay = normalTime - currentTime
+
+    return delay
+
+    // these milliseconds
   }
 
   async function updateStorageValues(): Promise<void> {
