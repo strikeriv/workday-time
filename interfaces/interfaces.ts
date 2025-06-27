@@ -10,6 +10,7 @@ export interface Storage {
   hourlyRate: number // user's hourly rate, in dollars
   preferences: Preferences // preferences
   status: Status // current status of the user, whether they are clocked in or out
+  debug?: boolean // whether the extension is in debug mode. hidden from the user
 }
 
 export interface Preferences {
