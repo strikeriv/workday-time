@@ -13,6 +13,7 @@ export async function sendNotification(
   dismissable: boolean
 ) {
   const isNotification = await getNotificationData(NotificationAlarm)
+  console.log(isNotification, "isNotification")
   if (isNotification) {
     // a notification is already sent to the user and hasn't been interacted with
     // determine whether we re-send a notification

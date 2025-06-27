@@ -38,12 +38,13 @@ async function handleNotificationAlarm(): Promise<void> {
   } = millisecondsToDuration(clockOutTime - Date.now())
   // if (hours > 0) return
 
-  // check if the minutes are within the notification range
-  const durationLeft = minutes + (seconds ? seconds / 60 : 0)
+  // check if the minutes are a time that we should notify at
+  const durationLeft = Math.round(minutes + (seconds ? seconds / 60 : 0))
+  console.log(durationLeft, "durationLeft")
   const isOverTime = durationLeft < 0
 
-  console.log(durationLeft, isOverTime, "yoo")
   const notificationRangeId = findNotificationIdByDuration(durationLeft)
+  console.log(notificationRangeId, "notificationRangeId")
   if (!notificationRangeId) return // no notification range found for the duration left
 
   const { id: notificationId, dismissable } =

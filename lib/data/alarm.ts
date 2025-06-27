@@ -1,6 +1,7 @@
 import { type Storage } from "~interfaces/interfaces"
 import { NotificationAlarm, Status, StorageKeys } from "~lib/constants"
 
+import { clearNotificationData } from "./notifications"
 import { getStorage, updateStorage } from "./storage"
 import { calculateDayTimeWorked, calculateTotalTimeWorked } from "./time"
 
@@ -13,10 +14,9 @@ export async function evaluateAlarmStatus(
   notificationsEnabled: boolean,
   options?: AlarmOptions
 ): Promise<void> {
-  console.log("here?")
   const existingAlarm = await chrome.alarms.get(NotificationAlarm)
   const shouldRecreateAlarm = options?.shouldRecreateAlarm ?? false
-  console.log(existingAlarm, shouldRecreateAlarm, "in evaluate status")
+
   if (notificationsEnabled) {
     if (existingAlarm) {
       if (!shouldRecreateAlarm) return
@@ -32,10 +32,11 @@ export async function evaluateAlarmStatus(
     // calcualte how many ms needed
     await chrome.alarms.create(NotificationAlarm, {
       periodInMinutes: 0.5, // every 30 seconds
-      delayInMinutes: 0
+      when: 0 // this means the alarm will trigger immediately
     })
   } else {
     console.log("Notifications disabled. Clearing alarm.")
+    await clearNotificationData(NotificationAlarm)
     await chrome.alarms.clear(NotificationAlarm)
   }
 }

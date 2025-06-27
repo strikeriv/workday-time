@@ -10,26 +10,22 @@ export enum NotificationRangeIds {
 const MinuteNotificationRanges = [
   {
     id: NotificationRangeIds.Minute15Warning,
-    start: 5,
-    end: 15,
+    time: 15,
     dismissable: true
-  }, // 5 to 15 minutes left
+  }, // 15 minutes left
   {
     id: NotificationRangeIds.Minute5Warning,
-    start: 1,
-    end: 5,
+    time: 5,
     dismissable: true
-  }, // 1 to 5 minutes left
+  }, // 5 minutes left
   {
     id: NotificationRangeIds.Minute1Warning,
-    start: 0,
-    end: 1,
+    time: 1,
     dismissable: true
-  }, // 0 to 1 minute left
+  }, // 1 minute left
   {
     id: NotificationRangeIds.OverTimeWarning,
-    start: -60,
-    end: 0,
+    time: 0,
     dismissable: false
   } // past clock out time
 ]
@@ -78,13 +74,26 @@ export function isWithinNotificationRange(
 ): boolean {
   const range = getNotificationRange(notificationId)
   if (!range) return false
-  return durationLeft >= range.start && durationLeft <= range.end
+
+  if (range.dismissable) {
+    return durationLeft == range.time
+  } else {
+    return durationLeft <= range.time
+  }
 }
 
 export function findNotificationIdByDuration(
   durationLeft: number
 ): NotificationRangeIds | undefined {
-  return MinuteNotificationRanges.find(
-    (range) => durationLeft >= range.start && durationLeft <= range.end
-  )?.id
+  const dismissableRange = MinuteNotificationRanges.find(
+    (range) => range.dismissable && durationLeft === range.time
+  )
+  if (dismissableRange) return dismissableRange.id
+
+  const overtimeRange = MinuteNotificationRanges.find(
+    (range) => !range.dismissable && durationLeft < range.time
+  )
+  if (overtimeRange) return overtimeRange.id
+
+  return undefined
 }

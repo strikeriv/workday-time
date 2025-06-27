@@ -88,6 +88,7 @@ async function updateTimeOnNewDay(storage: Storage): Promise<Storage> {
 }
 
 function updateLogging(isDebugEnabled: boolean): void {
+  console.log("Debug mode is", isDebugEnabled ? "enabled" : "disabled")
   if (!isDebugEnabled) {
     console.log = () => {}
   }
