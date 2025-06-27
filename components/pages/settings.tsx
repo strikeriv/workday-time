@@ -65,7 +65,6 @@ export function SettingsPage({
     await updateStorage({ [StorageKeys.Preferences]: values as Preferences })
 
     // evaluate whether we need to create or update the alarm
-    //console.log(calculateAlarmDelay(), "should update alarm??")
     // TODO: come back and see if we can match directly on top of the clock in time
     await evaluateAlarmStatus(values.notificationsEnabled, {
       shouldRecreateAlarm: values.hoursToWork !== previousHours

@@ -1,5 +1,5 @@
 import { sendNotification } from "~background/util/notifications"
-import { NotificationAlarm } from "~lib/constants"
+import { NotificationAlarm, Status } from "~lib/constants"
 import {
   findNotificationIdByDuration,
   getNotificationRange
@@ -29,22 +29,22 @@ export function registerAlarmListener() {
 async function handleNotificationAlarm(): Promise<void> {
   // notifications are enabled; check clocked status
   const storage = await getStorage()
-  const clockOutTime = calculateClockOutTime(storage)
+  const { status } = storage
+  if (status !== Status.ClockedIn) return // no need to notify if not clocked in
 
+  const clockOutTime = calculateClockOutTime(storage)
   const {
     hours = 0,
     minutes = 0,
     seconds = 0
   } = millisecondsToDuration(clockOutTime - Date.now())
-  // if (hours > 0) return
+  if (hours > 0) return
 
   // check if the minutes are a time that we should notify at
   const durationLeft = Math.round(minutes + (seconds ? seconds / 60 : 0))
-  console.log(durationLeft, "durationLeft")
   const isOverTime = durationLeft < 0
 
   const notificationRangeId = findNotificationIdByDuration(durationLeft)
-  console.log(notificationRangeId, "notificationRangeId")
   if (!notificationRangeId) return // no notification range found for the duration left
 
   const { id: notificationId, dismissable } =

@@ -1,30 +1,36 @@
-import {
-  intervalToDuration,
-  roundToNearestMinutes,
-  type Duration
-} from "date-fns"
+import { intervalToDuration, type Duration } from "date-fns"
 
 import { type Storage } from "~interfaces/interfaces"
 
+const cap = 40 * 3600000 // 40 hours in milliseconds
+
 export function calculateClockOutTime(storage: Storage): number {
-  const { lastClockedTime, timeWorkedToday, preferences } = storage
+  const { lastClockedTime, timeWorkedThisWeek, preferences } = storage
   const { hoursToWork } = preferences
 
   if (
     lastClockedTime === null ||
-    timeWorkedToday === null ||
+    timeWorkedThisWeek === null ||
     preferences === null ||
     hoursToWork === null
   )
     return
 
-  const timeRemaining =
-    hoursToWork * 3600000 -
-    durationToMilliseconds(
-      calculateDayTimeWorked(lastClockedTime, timeWorkedToday)
-    )
+  let timeToWork =
+    durationToMilliseconds(timeWorkedThisWeek) + hoursToWork * 3600000
+  if (timeToWork > cap) {
+    timeToWork = cap
+  }
 
-  return roundToNearestMinutes(new Date().getTime() + timeRemaining).getTime()
+  const totalTimeWorked = calculateTotalTimeWorked(
+    lastClockedTime,
+    timeWorkedThisWeek,
+    true // isClockedIn
+  )
+
+  return (
+    new Date().getTime() + timeToWork - durationToMilliseconds(totalTimeWorked)
+  )
 }
 
 export function calculateCurrentTimeWorked(clockedTime: number): Duration {

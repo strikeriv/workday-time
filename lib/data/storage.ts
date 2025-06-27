@@ -1,7 +1,9 @@
 import { isSameDay, isSameWeek, type Duration } from "date-fns"
 
 import { type Storage } from "~interfaces/interfaces"
-import { Status, StorageKeys } from "~lib/constants"
+import { NotificationAlarm, Status, StorageKeys } from "~lib/constants"
+
+import { clearNotificationData } from "./notifications"
 
 export async function getStorage(): Promise<Storage> {
   const keys = Object.values(StorageKeys) as StorageKeys[]
@@ -84,6 +86,8 @@ async function updateTimeOnNewDay(storage: Storage): Promise<Storage> {
   storage.lastUpdated = Date.now()
 
   await chrome.storage.local.set(storage)
+  await clearNotificationData(NotificationAlarm)
+
   return storage
 }
 

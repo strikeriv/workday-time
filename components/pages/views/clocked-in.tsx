@@ -9,7 +9,11 @@ import { TotalTimeClock } from "~components/props/dynamic/total-time"
 import { Button } from "~components/ui/button"
 import { Separator } from "~components/ui/separator"
 import { type Storage } from "~interfaces/interfaces"
-import { calculateDayTimeWorked, durationToMilliseconds } from "~lib/data/time"
+import {
+  calculateClockOutTime,
+  calculateTotalTimeWorked,
+  durationToMilliseconds
+} from "~lib/data/time"
 
 interface ClockedInPageProps extends React.ComponentPropsWithoutRef<"div"> {
   tick: number
@@ -24,27 +28,6 @@ export function ClockedInPage({
   storage,
   ...props
 }: Readonly<ClockedInPageProps>) {
-  function calculateClockOutTime(): number {
-    const { lastClockedTime, timeWorkedToday, preferences } = storage
-    const { hoursToWork } = preferences
-
-    if (
-      lastClockedTime === null ||
-      timeWorkedToday === null ||
-      preferences === null ||
-      hoursToWork === null
-    )
-      return
-
-    const timeRemaining =
-      hoursToWork * 3600000 -
-      durationToMilliseconds(
-        calculateDayTimeWorked(lastClockedTime, timeWorkedToday)
-      )
-
-    return roundToNearestMinutes(new Date().getTime() + timeRemaining).getTime()
-  }
-
   return (
     <div className={className} {...props}>
       <p className="text-sm text-muted-foreground">
@@ -63,7 +46,7 @@ export function ClockedInPage({
             tick={tick}
             isClockedIn={false}
             isAlternateText={true}
-            lastClockedTime={calculateClockOutTime()}
+            lastClockedTime={calculateClockOutTime(storage)}
           />
         </div>
       </div>
