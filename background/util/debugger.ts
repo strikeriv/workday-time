@@ -15,7 +15,8 @@ export async function attachDebuggerToTab(
     }
 
     const browser = await connect({
-      transport: await ExtensionTransport.connectTab(tab.id)
+      transport: await ExtensionTransport.connectTab(tab.id),
+      defaultViewport: null
     })
     const [page] = await browser.pages()
 

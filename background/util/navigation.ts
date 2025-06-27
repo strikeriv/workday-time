@@ -6,6 +6,7 @@ import { WORKDAY_URL } from "./page"
 export enum ValidPages {
   WorkdayHome = "Home - Workday",
   WorkdayTime = "Time - Workday",
+  WorkdayTimeEntries = "Enter Time - Workday",
   WorkdayPay = "Overview - Workday"
 }
 
@@ -14,22 +15,24 @@ export async function navigateToPage(
   page: ValidPages
 ): Promise<boolean> {
   try {
-    console.log(`Navigating to ${page}...`)
     if (page === ValidPages.WorkdayHome) {
       return await routeToWorkdayHomePage(currentPage)
     }
 
-    // for all other pages, we make sure we are on the workday page
-    // we can navigate to any page from any page with the menu
-    // so we just need to make sure we are on the workday page
-    if (!currentPage.url().includes(WORKDAY_URL.split("/jbhunt")[0])) {
-      await navigateToPage(currentPage, ValidPages.WorkdayHome)
-    }
-
+    // for all other pages, we click on the menu and goto that page
     if (page === ValidPages.WorkdayPay) {
       return await navigateToWorkdayPayPage(currentPage)
-    } else if (page === ValidPages.WorkdayTime) {
+    }
+
+    if (page === ValidPages.WorkdayTime) {
       return await navigateToWorkdayTimePage(currentPage)
+    }
+
+    if (page === ValidPages.WorkdayTimeEntries) {
+      // Must be on Time page first
+      const navSuccess = await navigateToWorkdayTimePage(currentPage)
+      if (!navSuccess) return false
+      return await navigateToWorkdayTimeEntriesPage(currentPage)
     }
 
     // unknown poage
@@ -78,8 +81,32 @@ async function navigateToWorkdayPayPage(currentPage: Page): Promise<boolean> {
 async function navigateToWorkdayTimePage(currentPage: Page): Promise<boolean> {
   // wait for and click "View All Apps"
   try {
+    const title = await currentPage.title()
+    if (title === ValidPages.WorkdayTime) {
+      console.log("Already on Workday Time page.")
+      return true
+    }
+
     await openWorkdayMenu(currentPage)
     await findAndClickOnMenuButton(currentPage, "Time")
+
+    await currentPage.waitForNavigation({
+      waitUntil: "networkidle2",
+      timeout: 10000
+    })
+
+    return true
+  } catch {
+    return false
+  }
+}
+
+async function navigateToWorkdayTimeEntriesPage(
+  currentPage: Page
+): Promise<boolean> {
+  //  we should be on the time page already
+  try {
+    await findAndClickOnEnterTimeButton(currentPage)
 
     await currentPage.waitForNavigation({
       waitUntil: "networkidle2",
@@ -122,9 +149,29 @@ async function findAndClickOnMenuButton(
   const allLocators = await currentPage.$$(subMenuSelector)
   for (const locator of allLocators) {
     const text = await currentPage.evaluate((el) => el.textContent, locator)
-    if (text && text.trim().toLowerCase() === buttonText.toLowerCase()) {
+    if (text?.trim().toLowerCase() === buttonText.toLowerCase()) {
       await locator.click()
       console.log(`Clicked on ${buttonText} button successfully.`)
+      break
+    }
+  }
+}
+
+async function findAndClickOnEnterTimeButton(currentPage: Page): Promise<void> {
+  const subMenuSelector = "[data-automation-id=dropDownCommandButton]"
+
+  await currentPage.waitForSelector(subMenuSelector, {
+    timeout: 5000
+  })
+
+  await wait(500) // the panel is sliding
+
+  const allLocators = await currentPage.$$(subMenuSelector)
+  for (const locator of allLocators) {
+    const text = await currentPage.evaluate((el) => el.textContent, locator)
+    if (text?.trim().toLowerCase().includes("this week")) {
+      await locator.click()
+      console.log(`Clicked on Last Week button successfully.`)
       break
     }
   }

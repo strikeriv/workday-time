@@ -22,6 +22,10 @@ export async function getStorage(): Promise<Storage> {
     storage = await updateTimeOnNewDay(storage)
   }
 
+  if (storage.debug !== undefined && storage.debug === true) {
+    updateLogging(true)
+  }
+
   return storage
 }
 
@@ -81,4 +85,10 @@ async function updateTimeOnNewDay(storage: Storage): Promise<Storage> {
 
   await chrome.storage.local.set(storage)
   return storage
+}
+
+function updateLogging(isDebugEnabled: boolean): void {
+  if (!isDebugEnabled) {
+    console.log = () => {}
+  }
 }

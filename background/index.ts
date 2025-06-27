@@ -7,7 +7,8 @@ import { navigateToPage, ValidPages } from "./util/navigation"
 import { openWorkdayHomePage } from "./util/page"
 import { parsePageForClocked } from "./util/parsing/clocked"
 import { parsePayPageForData } from "./util/parsing/pay"
-import { parsePageForTime } from "./util/parsing/time"
+import { parsePageForCurrentTime } from "./util/parsing/time/current"
+import { parsePageForTimeEntries } from "./util/parsing/time/entries"
 import { closeTab } from "./util/tabs"
 
 async function syncDataFromWorkday(): Promise<void> {
@@ -24,34 +25,52 @@ async function syncDataFromWorkday(): Promise<void> {
   }
 
   console.log("Navigated to Workday pay page successfully.")
-  const didParsePay = await parsePayPageForData(page)
-  if (!didParsePay) {
+  const parsedPay = await parsePayPageForData(page)
+  if (!parsedPay) {
     console.error("Failed to parse the Workday pay page.")
-    // return await closeTab(tab)
+    return await closeTab(tab)
   }
 
   console.log("Parsed pay page successfully.")
-  const wasTimeavigationSuccessful = await navigateToPage(
+  const wasTimeNavigationSuccessful = await navigateToPage(
     page,
     ValidPages.WorkdayTime
   )
-  if (!wasTimeavigationSuccessful) {
+  if (!wasTimeNavigationSuccessful) {
     console.error("Failed to navigate to the Workday time page.")
     return await closeTab(tab)
   }
 
   console.log("Navigated to Workday Time page successfully.")
-  const parsedPage = await parsePageForTime(page)
-  if (!parsedPage) {
-    console.error("Failed to parse the Workday time page.")
-    // return await closeTab(tab)
+  const parsedCurrentTime = await parsePageForCurrentTime(page)
+  if (!parsedCurrentTime) {
+    console.error("Failed to parse current time.")
+    return await closeTab(tab)
   }
 
-  // save into storage
-  console.log("Saving parsed time data to storage...")
-  await updateStorage(parsedPage)
+  const wasTimeEntriesNavigationSuccessful = await navigateToPage(
+    page,
+    ValidPages.WorkdayTimeEntries
+  )
+  if (!wasTimeEntriesNavigationSuccessful) {
+    console.error("Failed to navigate to the Workday time entries page.")
+    return await closeTab(tab)
+  }
 
-  console.log("Saved parsed time data successfully.")
+  const parsedTimeEntries = await parsePageForTimeEntries(page)
+  if (!parsedTimeEntries) {
+    console.error("Failed to parse time entries.")
+    return await closeTab(tab)
+  }
+
+  console.log("Saving parsed data to storage...")
+  await updateStorage({
+    hourlyRate: parsedPay,
+    ...parsedCurrentTime,
+    ...parsedTimeEntries
+  })
+
+  console.log("Synced and saved parsed data successfully.")
   return await closeTab(tab)
 }
 

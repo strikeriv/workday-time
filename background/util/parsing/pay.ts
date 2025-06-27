@@ -1,51 +1,47 @@
 import { Page } from "puppeteer-core/lib/esm/puppeteer/puppeteer-core-browser.js"
 
-import { StorageKeys } from "~lib/constants"
+import { getElementsBySelector } from "./util"
 
-export async function parsePayPageForData(page: Page): Promise<boolean> {
+export async function parsePayPageForData(page: Page): Promise<number> {
   try {
     console.log("Parsing pay page for data...")
 
-    const readHourlyPaySuccessfully = await readHourlyPay(page)
-    if (!readHourlyPaySuccessfully) {
+    const hourlyPay = await readHourlyPay(page)
+    if (!hourlyPay) {
       console.error("Failed to read hourly pay.")
-      return false
+      return
     }
 
-    return true
+    return hourlyPay
   } catch (error) {
     console.error("Error parsing pay page:", error)
-    return false
+    return
   }
 }
 
-async function readHourlyPay(page: Page): Promise<boolean> {
+async function readHourlyPay(page: Page): Promise<number> {
   try {
-    const payElement = await page.$$(
-      "[data-automation-id=cardFrameworkListCardItemValue]"
+    const cardTexts = await getElementsBySelector(
+      page,
+      "[data-automation-id=cardFrameworkTruncatedText]",
+      ["textContent"]
     )
-    if (!payElement) return false
+    if (!cardTexts) {
+      console.error("Failed to find card text elements.")
+      return
+    }
 
-    const payTexts = await page.$$eval(
-      "[data-automation-id=cardFrameworkListCardItemValue]",
-      (elements) => elements.map((el) => el.textContent)
-    )
-    const rawHourlyPayText = payTexts.find((text) =>
-      text?.toLowerCase().includes("hourly")
-    )
+    const payText = cardTexts.find((text) =>
+      text?.textContent?.toLowerCase().includes("usd hourly")
+    ).textContent
 
-    console.log(`Hourly pay text found: ${rawHourlyPayText}.`)
-    const parsedHourlyPay = /\d{1,2}.\d{2}/gm.exec(rawHourlyPayText || "")[0]
-    console.log(`Parsed hourly pay: ${parsedHourlyPay}. Saving into storage...`)
+    console.log(`Hourly pay text found: ${payText}.`)
+    const parsedHourlyPay = /\d{1,2}.\d{2}/gm.exec(payText ?? "")[0]
+    console.log(`Parsed hourly pay: ${parsedHourlyPay}.`)
 
-    await chrome.storage.local.set({
-      [StorageKeys.HourlyRate]: parseFloat(parsedHourlyPay)
-    })
-
-    console.log("Hourly pay saved successfully.")
-    return true
+    return parseInt(parsedHourlyPay)
   } catch (error) {
     console.error("Error reading hourly pay:", error)
-    return false
+    return
   }
 }

@@ -51,7 +51,7 @@ export function DesyncedPage({
         </div>
       </div>
 
-      <Separator className="my-6" />
+      <Separator className="relative left-1/2 right-1/2 my-6 w-[calc(100%+3rem)] -translate-x-1/2" />
 
       <div className="justifty-between">
         <Button type="button" className="float-left" onClick={onSyncData}>
