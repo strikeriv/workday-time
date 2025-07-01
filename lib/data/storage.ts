@@ -15,13 +15,15 @@ export async function getStorage(): Promise<Storage> {
   }
 
   // validate data & update as necessary
-  const lastClockedTimeData = new Date(storage.lastClockedTime)
-  if (!isSameWeek(lastClockedTimeData, new Date())) {
-    storage = await updateTimeOnNewWeek(storage)
-  }
+  if (storage.lastClockedTime) {
+    const lastClockedTimeData = new Date(storage.lastClockedTime)
+    if (!isSameWeek(lastClockedTimeData, new Date())) {
+      storage = await updateTimeOnNewWeek(storage)
+    }
 
-  if (!isSameDay(lastClockedTimeData, new Date())) {
-    storage = await updateTimeOnNewDay(storage)
+    if (!isSameDay(lastClockedTimeData, new Date())) {
+      storage = await updateTimeOnNewDay(storage)
+    }
   }
 
   if (storage.debug !== undefined && storage.debug === true) {

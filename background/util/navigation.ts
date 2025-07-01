@@ -48,7 +48,7 @@ async function routeToWorkdayHomePage(currentPage: Page): Promise<boolean> {
   // just change url to home
   try {
     await currentPage.goto(WORKDAY_URL, {
-      waitUntil: "domcontentloaded",
+      waitUntil: "networkidle0",
       timeout: 10000
     })
     console.log("Navigated to Workday home page successfully.")
@@ -109,7 +109,7 @@ async function navigateToWorkdayTimeEntriesPage(
     await findAndClickOnEnterTimeButton(currentPage)
 
     await currentPage.waitForNavigation({
-      waitUntil: "networkidle2",
+      waitUntil: "networkidle0",
       timeout: 10000
     })
 
