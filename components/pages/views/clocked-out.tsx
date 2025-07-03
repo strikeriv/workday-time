@@ -58,10 +58,10 @@ export function ClockedOutPage({
 
       <Separator className="relative left-1/2 right-1/2 my-6 w-[calc(100%+3rem)] -translate-x-1/2" />
 
-      <div className="justifty-between">
+      <div className="flex justify-between">
         <Button type="button" className="float-left" onClick={onClockIn}>
           <ExternalLink />
-          Clock in
+          Clock In
         </Button>
 
         <Link to="/settings">

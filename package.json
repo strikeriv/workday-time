@@ -2,7 +2,7 @@
   "name": "workday-time",
   "displayName": "Workday Time",
   "version": "1.0.0",
-  "description": "An extention to make Workday life easier",
+  "description": "An extension to make Workday life easier",
   "author": "Matthew Craddock. <matthew.j.craddock@jbhunt.com>",
   "scripts": {
     "dev": "plasmo dev",

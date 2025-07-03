@@ -1,4 +1,3 @@
-import { roundToNearestMinutes } from "date-fns"
 import { ExternalLink, Settings } from "lucide-react"
 import { Link } from "react-router-dom"
 
@@ -9,11 +8,7 @@ import { TotalTimeClock } from "~components/props/dynamic/total-time"
 import { Button } from "~components/ui/button"
 import { Separator } from "~components/ui/separator"
 import { type Storage } from "~interfaces/interfaces"
-import {
-  calculateClockOutTime,
-  calculateTotalTimeWorked,
-  durationToMilliseconds
-} from "~lib/data/time"
+import { calculateClockOutTime } from "~lib/data/time"
 
 interface ClockedInPageProps extends React.ComponentPropsWithoutRef<"div"> {
   tick: number
@@ -77,10 +72,10 @@ export function ClockedInPage({
 
       <Separator className="relative left-1/2 right-1/2 my-6 w-[calc(100%+3rem)] -translate-x-1/2" />
 
-      <div className="justifty-between">
+      <div className="flex justify-between">
         <Button type="button" className="float-left" onClick={onClockOut}>
           <ExternalLink />
-          Clock out
+          Clock Out
         </Button>
 
         <Link to="/settings">

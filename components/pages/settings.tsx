@@ -17,7 +17,7 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
 import jbhunt from "data-base64:~assets/jbhunt.png"
-import { ArrowLeft, Info, Loader2Icon } from "lucide-react"
+import { ArrowLeft, ExternalLink, Info, Loader2Icon } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { Link } from "react-router-dom"
@@ -282,7 +282,7 @@ export function SettingsPage({
 
               <Separator className="relative left-1/2 right-1/2 my-6 w-[calc(100%+3rem)] -translate-x-1/2" />
 
-              <div className="justifty-between">
+              <div className="flex justify-between">
                 {saving ? (
                   <Button disabled>
                     <Loader2Icon className="animate-spin" />

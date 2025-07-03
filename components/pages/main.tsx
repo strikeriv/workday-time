@@ -20,7 +20,7 @@ import { StatusBar } from "~components/props/status"
 import { type Storage } from "~interfaces/interfaces"
 import { Status } from "~lib/constants"
 import { evaluateAlarmStatus } from "~lib/data/alarm"
-import { getStorage, updateStorage } from "~lib/data/storage"
+import { getStorage } from "~lib/data/storage"
 
 import { ClockedInPage } from "./views/clocked-in"
 import { ClockedOutPage } from "./views/clocked-out"
@@ -104,7 +104,7 @@ export function Main({
             </div>
           </CardTitle>
           <CardDescription>
-            An extention to make Workday life easier
+            An extension to make Workday life easier
           </CardDescription>
         </CardHeader>
         <CardContent className="flex h-full flex-1 flex-col">

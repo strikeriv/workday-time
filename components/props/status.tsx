@@ -2,10 +2,10 @@ import { Circle } from "lucide-react"
 import { useEffect, useState } from "react"
 
 import { type Storage } from "~interfaces/interfaces"
-import { Status as StatusType } from "~lib/constants"
+import { Status } from "~lib/constants"
 import { cn } from "~lib/utils"
 
-interface Status extends React.ComponentPropsWithoutRef<"div"> {
+interface StatusProps extends React.ComponentPropsWithoutRef<"div"> {
   storage: Storage
 }
 
@@ -15,7 +15,11 @@ const statusColors = {
   gray: "text-gray-400"
 }
 
-export function StatusBar({ className, storage, ...props }: Readonly<Status>) {
+export function StatusBar({
+  className,
+  storage,
+  ...props
+}: Readonly<StatusProps>) {
   const [status, setStatus] = useState("Offline")
   const [statusColor, setStatusColor] = useState("gray")
 
@@ -25,26 +29,25 @@ export function StatusBar({ className, storage, ...props }: Readonly<Status>) {
     const { lastClockedTime, timeWorkedThisWeek } = storage
     const status = storage.status
 
-    if (lastClockedTime && timeWorkedThisWeek) {
-      const clockedInDate = new Date(lastClockedTime)
-      const currentTime = new Date()
+    const clockedInDate = new Date(lastClockedTime)
+    const currentTime = new Date()
 
-      if (status === StatusType.Desynced) {
-        setStatus("Desynced")
-        setStatusColor("orange")
-      } else if (currentTime.getTime() > clockedInDate.getTime()) {
+    if (status === Status.Desynced) {
+      setStatus("Desynced")
+      setStatusColor("orange")
+    }
+
+    if (lastClockedTime && timeWorkedThisWeek) {
+      if (currentTime.getTime() > clockedInDate.getTime()) {
         setStatus("Online")
         setStatusColor("green")
-      } else {
-        setStatus("Offline")
-        setStatusColor("gray")
       }
     }
   }
 
   useEffect(() => {
     if (storage == null) return
-
+    console.log(storage, "storage here")
     evaluateStatus()
   }, [storage])
 

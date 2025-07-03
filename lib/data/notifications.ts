@@ -68,23 +68,10 @@ export function getNotificationRange(id: NotificationRangeIds) {
   return MinuteNotificationRanges.find((range) => range.id === id)
 }
 
-export function isWithinNotificationRange(
-  notificationId: NotificationRangeIds,
-  durationLeft: number
-): boolean {
-  const range = getNotificationRange(notificationId)
-  if (!range) return false
-
-  if (range.dismissable) {
-    return durationLeft == range.time
-  } else {
-    return durationLeft <= range.time
-  }
-}
-
 export function findNotificationIdByDuration(
   durationLeft: number
 ): NotificationRangeIds | undefined {
+  console.log(durationLeft, "duration left")
   const dismissableRange = MinuteNotificationRanges.find(
     (range) => range.dismissable && durationLeft === range.time
   )
@@ -93,7 +80,10 @@ export function findNotificationIdByDuration(
   const overtimeRange = MinuteNotificationRanges.find(
     (range) => !range.dismissable && durationLeft < range.time
   )
-  if (overtimeRange) return overtimeRange.id
+  console.log(overtimeRange, "overtime range")
+  if (overtimeRange) {
+    if (Math.abs(durationLeft) < 30) return overtimeRange.id
+  }
 
   return undefined
 }
