@@ -135,7 +135,7 @@ export function SettingsPage({
                         <Input
                           type="number"
                           min={0}
-                          max={10}
+                          max={11}
                           step={0.25}
                           {...field}
                           value={field.value ?? ""}
@@ -152,7 +152,7 @@ export function SettingsPage({
                               e.preventDefault()
                             }
                           }}
-                          className="w-1/5"
+                          className="w-1/4"
                         />
                       </FormControl>
                       <FormLabel className="!my-0 pl-2 text-muted-foreground">

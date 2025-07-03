@@ -15,13 +15,16 @@ export async function getStorage(): Promise<Storage> {
   }
 
   // validate data & update as necessary
+  console.log(storage, "storage")
   if (storage.lastClockedTime) {
     const lastClockedTimeData = new Date(storage.lastClockedTime)
     if (!isSameWeek(lastClockedTimeData, new Date())) {
+      console.log("is same week")
       storage = await updateTimeOnNewWeek(storage)
     }
 
     if (!isSameDay(lastClockedTimeData, new Date())) {
+      console.log("is same day")
       storage = await updateTimeOnNewDay(storage)
     }
   }
@@ -87,9 +90,16 @@ async function updateTimeOnNewDay(storage: Storage): Promise<Storage> {
   // update last updated time
   storage.lastUpdated = Date.now()
 
+  if (storage.status === Status.ClockedIn) {
+    // if the user is clocked in, they're simply not
+    // set status to desynced
+    storage.status = Status.Desynced
+  }
+
   await chrome.storage.local.set(storage)
   await clearNotificationData(NotificationAlarm)
 
+  console.log(storage, "storage after clearing notification data")
   return storage
 }
 

@@ -17,6 +17,7 @@ const handler: PlasmoMessaging.MessageHandler<any, MessageResponse> = async (
 ) => {
   console.log("Clocking in...")
   await changeClockedStatus(false, false)
+  console.log("Clocked in.")
 
   res.send({ message: "Clocked in.", status: MessageStatus.Success })
 }

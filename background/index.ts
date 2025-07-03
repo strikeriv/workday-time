@@ -1,8 +1,8 @@
+import { onClockedStatusChange } from "~lib/data/alarm"
 import { updateStorage } from "~lib/data/storage"
 
 import { registerAlarmListener } from "./listener/alarm"
 import { registerNotificationListener } from "./listener/notification"
-import { registerWebRequestListener } from "./listener/web-request"
 import { navigateToPage, ValidPages } from "./util/navigation"
 import { openWorkdayHomePage } from "./util/page"
 import { parsePageForClocked } from "./util/parsing/clocked"
@@ -100,11 +100,14 @@ async function changeClockedStatus(
     return await closeTab(tab)
   }
 
+  // update storage values to reflect the clocked status change
+  // only fires when successful
+  onClockedStatusChange()
+
   return await closeTab(tab)
 }
 
 registerNotificationListener()
-registerWebRequestListener()
 registerAlarmListener()
 
 export { changeClockedStatus, syncDataFromWorkday }

@@ -42,6 +42,7 @@ async function handleNotificationAlarm(): Promise<void> {
 
   // check if the minutes are a time that we should notify at
   const durationLeft = Math.round(minutes + (seconds ? seconds / 60 : 0))
+  console.log(durationLeft, "left")
   const isOverTime = durationLeft < 0
 
   const notificationRangeId = findNotificationIdByDuration(durationLeft)

@@ -41,7 +41,7 @@ export async function evaluateAlarmStatus(
   }
 }
 
-export async function updateStorageOnClockedStatusChange(): Promise<void> {
+export async function onClockedStatusChange(): Promise<void> {
   const { lastClockedTime, timeWorkedToday, timeWorkedThisWeek, status } =
     await getStorage()
 

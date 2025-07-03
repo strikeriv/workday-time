@@ -8,14 +8,14 @@ export function registerNotificationListener(): void {
     async (notificationId, buttonIndex) => {
       //console.log("Notification button clicked:", notificationId, buttonIndex)
       if (notificationId !== NotificationAlarm) return
-      if (buttonIndex === 1) return onAlternateButtonClick(notificationId)
+      if (buttonIndex === 1) return onAlternateButtonClick()
 
-      return onPrimaryButtonClick(notificationId)
+      return onPrimaryButtonClick()
     }
   )
 }
 
-async function onAlternateButtonClick(notificationId: string): Promise<void> {
+async function onAlternateButtonClick(): Promise<void> {
   // determine whether we snooze or dismiss till next alarm cycle
   const notificationData = await getNotificationData(NotificationAlarm)
   if (!notificationData) {
@@ -38,8 +38,8 @@ async function onAlternateButtonClick(notificationId: string): Promise<void> {
   }
 }
 
-async function onPrimaryButtonClick(notificationId: string): Promise<void> {
+async function onPrimaryButtonClick(): Promise<void> {
   console.log("Clocking out from notification...")
-  //await changeClockedStatus(true, false) // clock the user out
+  await changeClockedStatus(true, false) // clock the user out
   console.log("Clocked out.")
 }
