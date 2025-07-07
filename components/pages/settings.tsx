@@ -17,7 +17,7 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
 import jbhunt from "data-base64:~assets/jbhunt.png"
-import { ArrowLeft, ExternalLink, Info, Loader2Icon } from "lucide-react"
+import { ArrowLeft, Info, Loader2Icon } from "lucide-react"
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { Link } from "react-router-dom"
@@ -103,7 +103,7 @@ export function SettingsPage({
 
   return (
     <div className={cn("flex h-full flex-col", className)} {...props}>
-      <Card className="flex h-full flex-col">
+      <Card className="flex h-full flex-col rounded-none">
         <CardHeader>
           <CardTitle>
             <div className="flex w-full items-center">

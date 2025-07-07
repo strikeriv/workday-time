@@ -94,7 +94,7 @@ export function Main({
 
   return (
     <div className={cn("flex h-full flex-col", className)} {...props}>
-      <Card className="flex h-full flex-col">
+      <Card className="flex h-full flex-col rounded-none">
         <CardHeader>
           <CardTitle>
             <div className="flex w-full items-center">
