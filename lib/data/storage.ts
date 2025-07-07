@@ -14,23 +14,24 @@ export async function getStorage(): Promise<Storage> {
     storage = await createBaseStorage()
   }
 
+  if (storage.debug === undefined || storage.debug !== true) {
+    updateLogging(false)
+  } else {
+    updateLogging(true)
+  }
+
   // validate data & update as necessary
-  console.log(storage, "storage")
   if (storage.lastClockedTime) {
     const lastClockedTimeData = new Date(storage.lastClockedTime)
     if (!isSameWeek(lastClockedTimeData, new Date())) {
-      console.log("is same week")
+      console.log("New Week, updating storage.")
       storage = await updateTimeOnNewWeek(storage)
     }
 
     if (!isSameDay(lastClockedTimeData, new Date())) {
-      console.log("is same day")
+      console.log("New Day, updating storage.")
       storage = await updateTimeOnNewDay(storage)
     }
-  }
-
-  if (storage.debug !== undefined && storage.debug === true) {
-    updateLogging(true)
   }
 
   return storage
@@ -45,7 +46,14 @@ export async function updateStorage(
 }
 
 export function doStorageKeysExist(storage: Storage): boolean {
-  return Object.values(StorageKeys).every((key) => key in storage)
+  return Object.values(StorageKeys).every((key) => {
+    if (key === StorageKeys.Debug) {
+      // debug key is optional
+      return true
+    }
+
+    return key in storage
+  })
 }
 
 async function createBaseStorage(): Promise<Storage> {
@@ -72,9 +80,6 @@ async function updateTimeOnNewWeek(storage: Storage): Promise<Storage> {
   // reset time worked for the week
   storage.timeWorkedThisWeek = {} as Duration
   storage.timeWorkedToday = {} as Duration
-
-  // reset last clocked time
-  storage.lastClockedTime = null
 
   // update last updated time
   storage.lastUpdated = Date.now()
@@ -104,7 +109,7 @@ async function updateTimeOnNewDay(storage: Storage): Promise<Storage> {
 }
 
 function updateLogging(isDebugEnabled: boolean): void {
-  console.log("Debug mode is", isDebugEnabled ? "enabled" : "disabled")
+  console.log("Debug mode is", isDebugEnabled ? "enabled." : "disabled.")
   if (!isDebugEnabled) {
     console.log = () => {}
   }

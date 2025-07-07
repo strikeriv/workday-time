@@ -47,7 +47,7 @@ export function StatusBar({
 
   useEffect(() => {
     if (storage == null) return
-    console.log(storage, "storage here")
+
     evaluateStatus()
   }, [storage])
 

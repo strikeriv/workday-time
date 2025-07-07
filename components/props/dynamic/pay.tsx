@@ -1,6 +1,7 @@
 import { type Duration } from "date-fns"
 import { useEffect, useState } from "react"
 
+import { DeductionPercentages } from "~lib/constants"
 import {
   calculateTotalTimeWorked,
   durationToMilliseconds
@@ -36,10 +37,10 @@ export function PayPage({
   }
 
   function updatePayWithDeductionsEstimation(pay: number) {
-    const socialSecurity = pay * 0.062 // 6.2%
-    const medicare = pay * 0.0145 // 1.45%
-    const federalWithholding = pay * 0.06 // 6%
-    const stateTax = pay * 0.023 // 2.3%
+    const socialSecurity = pay * DeductionPercentages.SocialSecurity
+    const medicare = pay * DeductionPercentages.Medicare
+    const federalWithholding = DeductionPercentages.FederalWitholding
+    const stateTax = pay * DeductionPercentages.StateTax
 
     const taxes = socialSecurity + medicare + federalWithholding + stateTax
     const deductions = k401DeductionEnabled
@@ -80,7 +81,7 @@ export function PayPage({
       <div className="flex flex-col">
         <p className="text-sm text-muted-foreground">{estimatedPay}</p>
         <p className="text-sm text-muted-foreground">
-          {estimatedDeductionsPay} (with deductions)
+          {estimatedDeductionsPay} (with included deductions)
         </p>
       </div>
     </div>

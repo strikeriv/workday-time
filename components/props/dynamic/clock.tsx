@@ -1,4 +1,4 @@
-import { format } from "date-fns"
+import { format, isSameDay, isSameWeek } from "date-fns"
 import { Info } from "lucide-react"
 import { useEffect, useState } from "react"
 
@@ -22,7 +22,22 @@ export function ClockedStatus({
   const [time, setTime] = useState<string>("loading...")
 
   function updateClockedTime() {
-    setTime(format(new Date(lastClockedTime), "h:mm a"))
+    // see if the last clocked time is a previous day
+    if (!isSameWeek(new Date(lastClockedTime), new Date())) {
+      setTime(`Last ${format(new Date(lastClockedTime), "EEEE, h:mm a")}`)
+    } else if (isSameDay(new Date(lastClockedTime), new Date())) {
+      setTime(`Today, ${format(new Date(lastClockedTime), "h:mm a")}`)
+    } else {
+      // format between yesterday and previous days
+      const yesterday = new Date()
+      yesterday.setDate(new Date().getDate() - 1)
+
+      if (isSameDay(new Date(lastClockedTime), new Date(yesterday))) {
+        setTime(`Yesterday, ${format(new Date(lastClockedTime), "h:mm a")}`)
+      } else {
+        setTime(format(new Date(lastClockedTime), "EEEE, h:mm a"))
+      }
+    }
   }
 
   useEffect(() => {
@@ -33,7 +48,11 @@ export function ClockedStatus({
 
   let buttonText = "Clocked in"
   if (!isClockedIn) {
-    buttonText = isAlternateText ? "Clocking out" : "Clocked out"
+    if (isAlternateText) {
+      buttonText = "Clocking out"
+    } else {
+      buttonText = "Clocked out"
+    }
   }
 
   return (

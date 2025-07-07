@@ -8,7 +8,8 @@ export enum StorageKeys {
   TimeWorkedThisWeek = "timeWorkedThisWeek",
   HourlyRate = "hourlyRate",
   Preferences = "preferences",
-  Status = "status"
+  Status = "status",
+  Debug = "debug" // optional key, must manually set to true
 }
 
 export enum Status {

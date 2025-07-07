@@ -51,8 +51,7 @@ export function calculateClockOutTime(storage: Storage): number {
     setTimeToWorkTodayDate = new Date(dailyCap)
   }
 
-  // check to ssee if the time worked this week exceeds the weekly cap
-  console.log(totalTimeWorkedWeek, weeklyCapMilliseconds)
+  // check to see if the time worked this week exceeds the weekly cap
   if (durationToMilliseconds(totalTimeWorkedWeek) >= weeklyCapMilliseconds) {
     // calculate how much longer they have
     const overByAmount = Math.abs(
