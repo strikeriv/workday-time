@@ -183,18 +183,20 @@ export function SettingsPage({
                   />
                   <CustomTooltip icon={<Info width="1em" height="1em" />}>
                     <p>
-                      Auto mode will automatically clock you in
+                      This setting will enable or disable notifications
                       <br />
-                      and out based on the hours you set above.
+                      for when you are close to clocking out, based on your
                       <br />
-                    </p>
-
-                    <p className="text-amber-300">
+                      "hours to work" preference above, at the following
+                      intervals:
                       <br />
-                      <strong>
-                        WARNING: This might not work as expected <br />
-                        Use at your own risk.
-                      </strong>
+                      <br />
+                      <ul className="list-disc pl-6">
+                        <li>15 minutes before clocking out</li>
+                        <li>5 minutes before clocking out</li>
+                        <li>1 minute before clocking out</li>
+                        <li>every 30 seconds after clock out time</li>
+                      </ul>
                     </p>
                   </CustomTooltip>
                 </div>

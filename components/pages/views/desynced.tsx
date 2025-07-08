@@ -30,7 +30,7 @@ export function DesyncedPage({
             <br />
             <br />
             <br />
-            <strong className="text-orange-400">
+            <strong className="text-amber-300">
               USE THIS EXTENSION AT YOUR OWN RISK
               <br />
               <br />
