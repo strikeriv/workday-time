@@ -120,7 +120,9 @@ export function SettingsPage({
           <Separator className="relative left-1/2 right-1/2 mb-6 w-[calc(100%+3rem)] -translate-x-1/2" />
 
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="flex flex-1 flex-col">
               <div className="flex flex-1 flex-col space-y-6">
                 <p className="text-sm text-muted-foreground">
                   Adjust your settings below to customize the extension
